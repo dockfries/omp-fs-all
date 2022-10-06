@@ -7,7 +7,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.35.1
   eslint: ^8.23.0
   husky: ^8.0.1
-  omp-node-lib: 0.5.0
+  omp-node-lib: 0.5.1
   rollup: ^2.77.2
   rollup-plugin-delete: ^2.0.0
   rollup-plugin-dts: ^4.2.2
@@ -17,10 +17,10 @@ specifiers:
   typescript: ^4.7.4
 
 dependencies:
-  '@sa-mp/node': 0.2.0
-  omp-node-lib: 0.5.0
+  omp-node-lib: 0.5.1
 
 devDependencies:
+  '@sa-mp/node': 0.2.0
   '@types/node': 18.8.2
   '@typescript-eslint/eslint-plugin': 5.39.0_xyciw6oqjoiiono4dhv3uhn5my
   '@typescript-eslint/parser': 5.39.0_ypn2ylkkyfa5i233caldtndbqa
@@ -166,7 +166,7 @@ packages:
 
   /@sa-mp/node/0.2.0:
     resolution: {integrity: sha512-pNkx5cNJx786Smgrzultj7ei2IHP+ZiZGm9ER3+gnOOVM8s7b6LcKhFbL8JPf9b+VdhSOTDhqhYATmyMj3G5DQ==}
-    dev: false
+    dev: true
 
   /@types/glob/7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -1137,19 +1137,19 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
-  /omp-node-lib/0.5.0:
-    resolution: {integrity: sha512-VcIT4a2qrI5TqHXFbPPe/tmNhIPmdg5VrZzX06RXRZwWK8lgmLiop2XewGwxNQBNQvdWlpvkSspQtwwbbdBWQQ==}
+  /omp-node-lib/0.5.1:
+    resolution: {integrity: sha512-vszdK1H6IRD9wRjWvlYqP52+GlIqzcJZwhyAQ9/7S9pUsBR3f5suZ8RmU3oSagZaby6TV210UVdcKK8fnDtsxg==}
     dependencies:
       iconv-lite: 0.6.3
       lodash: 4.17.21
       omp-wrapper: 0.1.4
-      omp-wrapper-streamer: 0.1.4
+      omp-wrapper-streamer: 0.1.5
       pino: 8.6.1
       pino-pretty: 9.1.1
     dev: false
 
-  /omp-wrapper-streamer/0.1.4:
-    resolution: {integrity: sha512-JdqkjFLj3plX98jleKMU+XV9hhg/cKrfKA1wy1OxB40abO7Se0PndfsmHouEtn+033r0ph43Q4O5vtNaf2K9jg==}
+  /omp-wrapper-streamer/0.1.5:
+    resolution: {integrity: sha512-I8+4Gkj6F/2mHx5FrUsgTH9uNIrc7bg0vAVdZYiAnZuSFKWU5Wr3T6z9v/r/fxa2b+KFlhYyaQFhHb8zog54DA==}
     dev: false
 
   /omp-wrapper/0.1.4:
