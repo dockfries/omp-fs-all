@@ -19,6 +19,11 @@
 
 import { COLOR } from "@/enums/color";
 import { GATES } from "@/enums/gates";
+import {
+  addCbListener,
+  removeCbListener,
+  registeredCbs,
+} from "@/utils/eventListener";
 import { PlaySoundForPlayersInRange } from "@/utils/gl_common";
 
 import {
@@ -110,19 +115,17 @@ export interface IA51Options<P extends BasePlayer> {
 class Fs<P extends BasePlayer> {
   private GateNames: [string, string] = ["Northern Gate", "Eastern Gate"];
   private labelGates: Array<Dynamic3DTextLabel> = [];
-  private initialized = false;
   private options: IA51Options<P>;
   constructor(options: IA51Options<P>) {
     this.options = options;
     this.load();
   }
   private load() {
-    const { charset = "utf8", command = "a51", playerEvent } = this.options;
+    const { charset = "utf8", playerEvent } = this.options;
 
     this.loadStreamers(playerEvent, charset);
-    this.registerEvent(playerEvent, command);
-
-    this.initialized = true;
+    this.registerEvent(playerEvent);
+    this.registerCommand();
 
     console.log("\n");
     console.log("  |---------------------------------------------------");
@@ -132,8 +135,9 @@ class Fs<P extends BasePlayer> {
     console.log("  |---------------------------------------------------");
   }
   public unload() {
+    this.unregisterEvent();
+    this.unregisterCommand();
     this.unloadStreamers();
-    this.initialized = false;
     console.log("  |---------------------------------------------------");
     console.log("  |--  Area 51 (69) Base Objects Filterscript Unloaded");
     console.log("  |---------------------------------------------------");
@@ -193,11 +197,6 @@ class Fs<P extends BasePlayer> {
       this.removeBuilding(p);
     });
 
-    playerEvent.onConnect = (player: P) => {
-      this.removeBuilding(player);
-      return playerEvent.onConnect(player);
-    };
-
     new MyDynamicObjectEvent(playerEvent.getPlayersMap());
   }
   private unloadStreamers() {
@@ -227,13 +226,29 @@ class Fs<P extends BasePlayer> {
     this.labelGates.forEach((t) => t.destroy());
     this.log("  |--  Deleted the 3D Text Labels on the Area 51 (69) Gates");
   }
-  // unregister event determine whether it has been initialized
-  private registerEvent(
-    playerEvent: BasePlayerEvent<P>,
-    command: string | Array<string>
-  ) {
+  private registerEvent(playerEvent: BasePlayerEvent<P>) {
+    const c_fn = (playerid: number) => {
+      const p = playerEvent.findPlayerById(playerid);
+      if (!p) return;
+      this.removeBuilding(p);
+      return 1;
+    };
+    addCbListener("OnPlayerConnect", c_fn);
+
+    const ksc_fn = (playerid: number, newkeys: KeysEnum) => {
+      const p = playerEvent.findPlayerById(playerid);
+      if (!p) return;
+      this.moveGate(playerEvent, p, newkeys);
+      return 1;
+    };
+    addCbListener("OnPlayerKeyStateChange", ksc_fn);
+  }
+  private unregisterEvent() {
+    registeredCbs.forEach((v) => removeCbListener(v[0], v[1]));
+  }
+  private registerCommand() {
+    const { playerEvent, command = "a51" } = this.options;
     playerEvent.onCommandText(command, (p) => {
-      if (!this.initialized) return 0;
       p.setInterior(0);
       p.setPos(135.2, 1948.51, 19.74);
       p.setFacingAngle(180);
@@ -241,15 +256,10 @@ class Fs<P extends BasePlayer> {
       new BaseGameText("~b~~h~Area 51 (69) Base!", 3000, 3).forPlayer(p);
       return 1;
     });
-
-    playerEvent.onKeyStateChange = (
-      player: P,
-      newkeys: KeysEnum,
-      oldkeys: KeysEnum
-    ) => {
-      if (this.initialized) this.moveGate(playerEvent, player, newkeys);
-      return playerEvent.onKeyStateChange(player, newkeys, oldkeys);
-    };
+  }
+  private unregisterCommand() {
+    const { playerEvent, command = "a51" } = this.options;
+    playerEvent.offCommandText(command);
   }
   private moveGate(
     playerEvent: BasePlayerEvent<P>,
