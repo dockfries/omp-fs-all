@@ -55,7 +55,7 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
   BasePlayer,
   DynamicObject
 > {
-  public onMoved(object: DynamicObject): TCommonCallback {
+  protected onMoved(object: DynamicObject): TCommonCallback {
     if (object === A51NorthernGate) {
       NorthernGateStatus =
         NorthernGateStatus === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
@@ -69,7 +69,7 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
     return 1;
   }
   //#region
-  public onPlayerEdit(
+  protected onPlayerEdit(
     player: BasePlayer,
     object: DynamicObject,
     response: EditResponseTypesEnum,
@@ -82,7 +82,7 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
   ): TCommonCallback {
     return 1;
   }
-  public onPlayerSelect(
+  protected onPlayerSelect(
     player: BasePlayer,
     object: DynamicObject,
     modelid: number,
@@ -92,7 +92,7 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
   ): TCommonCallback {
     return 1;
   }
-  public onPlayerShoot(
+  protected onPlayerShoot(
     player: BasePlayer,
     weaponid: number,
     object: DynamicObject,
