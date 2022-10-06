@@ -6,7 +6,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.35.1
   eslint: ^8.23.0
   husky: ^8.0.1
-  omp-node-lib: ^0.4.3
+  omp-node-lib: 0.4.5
   rollup: ^2.77.2
   rollup-plugin-delete: ^2.0.0
   rollup-plugin-dts: ^4.2.2
@@ -16,7 +16,7 @@ specifiers:
   typescript: ^4.7.4
 
 dependencies:
-  omp-node-lib: 0.4.3
+  omp-node-lib: 0.4.5
 
 devDependencies:
   '@types/node': 18.8.2
@@ -1131,8 +1131,8 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
-  /omp-node-lib/0.4.3:
-    resolution: {integrity: sha512-A6xJmIwAJ2861m+xaiUIUhH/yKzzW3pycwk+GJVVuMbPVMgIAukfP2VdzmLaw9pQ/gMWIkEcTOnwg4ehML7FUA==}
+  /omp-node-lib/0.4.5:
+    resolution: {integrity: sha512-tGKmUxRzPfWX8vZcuCHQjBwSiE1a9I97v0KidANBArx7QJ63CfcCuN0IvLEOP8nprIIqOT16LlFae8DOsS6p4g==}
     dependencies:
       iconv-lite: 0.6.3
       lodash: 4.17.21
