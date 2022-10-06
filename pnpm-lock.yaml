@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@sa-mp/node': ^0.2.0
   '@types/node': ^18.7.13
   '@typescript-eslint/eslint-plugin': ^5.35.1
   '@typescript-eslint/parser': ^5.35.1
@@ -16,6 +17,7 @@ specifiers:
   typescript: ^4.7.4
 
 dependencies:
+  '@sa-mp/node': 0.2.0
   omp-node-lib: 0.4.6
 
 devDependencies:
@@ -161,6 +163,10 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
     dev: true
+
+  /@sa-mp/node/0.2.0:
+    resolution: {integrity: sha512-pNkx5cNJx786Smgrzultj7ei2IHP+ZiZGm9ER3+gnOOVM8s7b6LcKhFbL8JPf9b+VdhSOTDhqhYATmyMj3G5DQ==}
+    dev: false
 
   /@types/glob/7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
