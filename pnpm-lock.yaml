@@ -7,7 +7,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.35.1
   eslint: ^8.23.0
   husky: ^8.0.1
-  omp-node-lib: 0.4.7
+  omp-node-lib: 0.5.0
   rollup: ^2.77.2
   rollup-plugin-delete: ^2.0.0
   rollup-plugin-dts: ^4.2.2
@@ -18,7 +18,7 @@ specifiers:
 
 dependencies:
   '@sa-mp/node': 0.2.0
-  omp-node-lib: 0.4.7
+  omp-node-lib: 0.5.0
 
 devDependencies:
   '@types/node': 18.8.2
@@ -1137,19 +1137,19 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
-  /omp-node-lib/0.4.7:
-    resolution: {integrity: sha512-cA6PQzm3sL8dfwCb9uz+VNrD08DALGl03WPv5CSq/iTGubvERQ22NuwmZ7+E7FRjhVP/0fS3pQG7wRtKMAhNCg==}
+  /omp-node-lib/0.5.0:
+    resolution: {integrity: sha512-VcIT4a2qrI5TqHXFbPPe/tmNhIPmdg5VrZzX06RXRZwWK8lgmLiop2XewGwxNQBNQvdWlpvkSspQtwwbbdBWQQ==}
     dependencies:
       iconv-lite: 0.6.3
       lodash: 4.17.21
       omp-wrapper: 0.1.4
-      omp-wrapper-streamer: 0.0.9
+      omp-wrapper-streamer: 0.1.4
       pino: 8.6.1
       pino-pretty: 9.1.1
     dev: false
 
-  /omp-wrapper-streamer/0.0.9:
-    resolution: {integrity: sha512-WKVrT25ScN+iChgFcb+e9olHoKdoF9AKOReh0SNWPjW4RuZK/8X1WDZpLHxZhcj28qbHrjzHbRqJMzCKsgpT+Q==}
+  /omp-wrapper-streamer/0.1.4:
+    resolution: {integrity: sha512-JdqkjFLj3plX98jleKMU+XV9hhg/cKrfKA1wy1OxB40abO7Se0PndfsmHouEtn+033r0ph43Q4O5vtNaf2K9jg==}
     dev: false
 
   /omp-wrapper/0.1.4:

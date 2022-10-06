@@ -116,6 +116,7 @@ class Fs<P extends BasePlayer> {
   private GateNames: [string, string] = ["Northern Gate", "Eastern Gate"];
   private labelGates: Array<Dynamic3DTextLabel> = [];
   private options: IA51Options<P>;
+  private objectEvent: MyDynamicObjectEvent | null = null;
   constructor(options: IA51Options<P>) {
     this.options = options;
     this.load();
@@ -167,6 +168,9 @@ class Fs<P extends BasePlayer> {
     console.log(msg);
   }
   private loadStreamers(playerEvent: BasePlayerEvent<P>, charset: string) {
+    // event should before create
+    this.objectEvent = new MyDynamicObjectEvent(playerEvent.getPlayersMap());
+
     ({
       A51LandObject,
       A51Fence,
@@ -196,10 +200,9 @@ class Fs<P extends BasePlayer> {
       if (!p.isConnected() || p.isNpc()) return;
       this.removeBuilding(p);
     });
-
-    new MyDynamicObjectEvent(playerEvent.getPlayersMap());
   }
   private unloadStreamers() {
+    this.objectEvent = null;
     if (this.destroyValidObject(A51LandObject)) {
       this.log("  |---------------------------------------------------");
       this.log("  |--  Area 51 (69) Land object destroyed");
@@ -290,7 +293,7 @@ class Fs<P extends BasePlayer> {
         1821.51,
         18.14
       );
-      if (EasternGateStatus == GATES.CLOSED) {
+      if (EasternGateStatus === GATES.CLOSED) {
         const gt = new BaseGameText("~b~~h~Eastern Gate Opening!", 3000, 3);
         gt.forPlayer(player);
         A51EasternGate?.move(286.008666, 1833.744628, 20.010623, 1.1, 0, 0, 90);
@@ -305,13 +308,13 @@ class Fs<P extends BasePlayer> {
     }
 
     if (player.isInRangeOfPoint(10.0, 135.09, 1942.37, 19.82)) {
-      if (NorthernGateStatus == GATES.OPENING) {
+      if (NorthernGateStatus === GATES.OPENING) {
         const msg =
           "* Sorry, you must wait for the northern gate to fully open first.";
         player.sendClientMessage(COLOR.MESSAGE_YELLOW, msg);
         return;
       }
-      if (NorthernGateStatus == GATES.CLOSING) {
+      if (NorthernGateStatus === GATES.CLOSING) {
         const msg =
           "* Sorry, you must wait for the northern gate to fully close first.";
         player.sendClientMessage(COLOR.MESSAGE_YELLOW, msg);
@@ -326,7 +329,7 @@ class Fs<P extends BasePlayer> {
         1942.37,
         19.82
       );
-      if (NorthernGateStatus == GATES.CLOSED) {
+      if (NorthernGateStatus === GATES.CLOSED) {
         new BaseGameText("~b~~h~Northern Gate Opening!", 3000, 3).forPlayer(
           player
         );

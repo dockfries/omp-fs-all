@@ -41,6 +41,6 @@
   },
   "dependencies": {
     "@sa-mp/node": "^0.2.0",
-    "omp-node-lib": "0.4.7"
+    "omp-node-lib": "0.5.0"
   }
 }
