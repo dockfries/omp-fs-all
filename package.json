@@ -1,6 +1,6 @@
 {
   "name": "omp-fs-all",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A collection of all built-in filterscripts",
   "main": "dist/bundle.js",
   "types": "dist/bundle.d.ts",

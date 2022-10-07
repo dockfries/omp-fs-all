@@ -1,11 +1,11 @@
-import { GATES } from "@/enums/gates";
-import { TGateList } from "@/types";
+import { EGates } from "@/enums/gates";
+import { IGateList } from "@/interfaces";
 import { DynamicObject } from "omp-node-lib";
 
-export const gateInfo: TGateList = {
+export const gateInfo: IGateList = {
   east: {
     name: "Eastern Gate",
-    status: GATES.CLOSED,
+    status: EGates.CLOSED,
     labelPos: {
       x: 287.12,
       y: 1821.51,
@@ -33,7 +33,7 @@ export const gateInfo: TGateList = {
   },
   north: {
     name: "Northern Gate",
-    status: GATES.CLOSED,
+    status: EGates.CLOSED,
     labelPos: {
       x: 135.09,
       y: 1942.37,

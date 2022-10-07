@@ -18,8 +18,8 @@
  */
 
 import { COLOR } from "@/enums/color";
-import { GATES } from "@/enums/gates";
-import { TGateList } from "@/types";
+import { EGates } from "@/enums/gates";
+import { A51FilterScript, IA51Options } from "@/interfaces";
 import {
   addCbListener,
   removeCbListener,
@@ -34,11 +34,9 @@ import {
   Dynamic3DTextLabel,
   DynamicObject,
   TCommonCallback,
-  TFilterScript,
   DynamicObjectEvent,
   EditResponseTypesEnum,
   KeysEnum,
-  BaseGameMode,
 } from "omp-node-lib";
 import { A51TextLabels } from "./label";
 import { A51ObjectsFactory, gateInfo } from "./object";
@@ -55,12 +53,12 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
     const { north, east } = gateInfo;
     if (object === north.instance) {
       gateInfo.north.status =
-        north.status === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
+        north.status === EGates.CLOSING ? EGates.CLOSED : EGates.OPEN;
       return 1;
     }
     if (object === east.instance) {
       gateInfo.east.status =
-        east.status === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
+        east.status === EGates.CLOSING ? EGates.CLOSED : EGates.OPEN;
       return 1;
     }
     return 1;
@@ -105,20 +103,6 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
   //#endregion
 }
 
-export interface IA51Options<P extends BasePlayer> {
-  playerEvent: BasePlayerEvent<P>;
-  command?: string | Array<string>;
-  debug?: boolean;
-  charset?: string;
-  beforeMoveGate?: (player: P) => boolean;
-  onGateMoving?: (
-    player: P,
-    direction: keyof TGateList,
-    status: GATES
-  ) => boolean;
-  onGateOpen?: (player: P, direction: keyof TGateList) => boolean;
-  onGateClose?: (player: P, direction: keyof TGateList) => boolean;
-}
 class Fs<P extends BasePlayer> {
   private labelGates: Array<Dynamic3DTextLabel> = [];
   private options: IA51Options<P>;
@@ -237,18 +221,18 @@ class Fs<P extends BasePlayer> {
     this.log("  |--  Deleted the 3D Text Labels on the Area 51 (69) Gates");
   }
   private registerEvent(playerEvent: BasePlayerEvent<P>) {
-    const c_fn = (playerid: number) => {
-      const p = playerEvent.findPlayerById(playerid);
+    const c_fn = (playerid: unknown) => {
+      const p = playerEvent.findPlayerById(playerid as number);
       if (!p) return;
       this.removeBuilding(p);
       return 1;
     };
     addCbListener("OnPlayerConnect", c_fn);
 
-    const ksc_fn = (playerid: number, newkeys: KeysEnum) => {
-      const p = playerEvent.findPlayerById(playerid);
+    const ksc_fn = (playerid: unknown, newkeys: unknown) => {
+      const p = playerEvent.findPlayerById(playerid as number);
       if (!p) return;
-      this.moveGate(playerEvent, p, newkeys);
+      this.moveGate(playerEvent, p, newkeys as KeysEnum);
       return 1;
     };
     addCbListener("OnPlayerKeyStateChange", ksc_fn);
@@ -297,7 +281,7 @@ class Fs<P extends BasePlayer> {
 
     const { onGateMoving } = this.options;
 
-    if (status === GATES.OPENING) {
+    if (status === EGates.OPENING) {
       if (onGateMoving) {
         onGateMoving(player, direction, status);
         return;
@@ -308,7 +292,7 @@ class Fs<P extends BasePlayer> {
       );
     }
 
-    if (status === GATES.CLOSING) {
+    if (status === EGates.CLOSING) {
       if (onGateMoving) {
         onGateMoving(player, direction, status);
         return;
@@ -348,7 +332,7 @@ class Fs<P extends BasePlayer> {
       rz: crz,
     } = closePos;
 
-    if (status === GATES.CLOSED) {
+    if (status === EGates.CLOSED) {
       let openRes;
       if (onGateOpen) {
         openRes = onGateOpen(player, direction);
@@ -358,7 +342,7 @@ class Fs<P extends BasePlayer> {
       }
       if (!openRes) return;
       gateInfo[direction].instance?.move(ox, oy, oz, ospeed, orx, ory, orz);
-      gateInfo[direction].status = GATES.OPENING;
+      gateInfo[direction].status = EGates.OPENING;
       return;
     }
     let closeRes;
@@ -370,7 +354,7 @@ class Fs<P extends BasePlayer> {
     }
     if (!closeRes) return;
     gateInfo[direction].instance?.move(cx, cy, cz, cspeed, crx, cry, crz);
-    gateInfo[direction].status = GATES.CLOSING;
+    gateInfo[direction].status = EGates.CLOSING;
     return;
   }
   private whichDoor(player: P): "east" | "north" | void {
@@ -382,15 +366,9 @@ class Fs<P extends BasePlayer> {
   }
 }
 
-export type A51FilterScript<P extends BasePlayer> = TFilterScript & {
-  load(gm: BaseGameMode, options: IA51Options<P>): void;
-};
-
-export const useA51BaseFS = <P extends BasePlayer>(
-  options: IA51Options<P>
-): A51FilterScript<P> => {
+export const useA51BaseFS = <P extends BasePlayer>(options: IA51Options<P>) => {
   let $fs: Fs<P> | null = null;
-  return {
+  const use: A51FilterScript = {
     name: "a51_base",
     // load params : gm: BaseGameMode, args: ...
     load() {
@@ -400,4 +378,5 @@ export const useA51BaseFS = <P extends BasePlayer>(
       if ($fs) $fs.unload();
     },
   };
+  return use;
 };

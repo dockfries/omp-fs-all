@@ -1,8 +1,8 @@
 import { COLOR } from "@/enums/color";
-import { TGateList } from "@/types";
+import { IGateList } from "@/interfaces";
 import { Dynamic3DTextLabel } from "omp-node-lib";
 
-export const A51TextLabels = (gate: TGateList, charset: string) => {
+export const A51TextLabels = (gate: IGateList, charset: string) => {
   return [
     new Dynamic3DTextLabel({
       charset,
