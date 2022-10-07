@@ -294,6 +294,7 @@ class Fs<P extends BasePlayer> {
         ColorEnum.MESSAGE_YELLOW,
         `* Sorry, you must wait for the ${doorLowName} to fully open first.`
       );
+      return;
     }
 
     if (status === GateStatusEnum.CLOSING) {
@@ -305,6 +306,7 @@ class Fs<P extends BasePlayer> {
         ColorEnum.MESSAGE_YELLOW,
         `* Sorry, you must wait for the ${doorLowName} to fully close first.`
       );
+      return;
     }
 
     PlaySoundForPlayersInRange(
