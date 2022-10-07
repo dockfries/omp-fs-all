@@ -1,11 +1,11 @@
-import { EGates } from "@/enums/gates";
+import { GateStatusEnum } from "@/enums/gate";
 import { IGateList } from "@/interfaces";
 import { DynamicObject } from "omp-node-lib";
 
 export const gateInfo: IGateList = {
   east: {
     name: "Eastern Gate",
-    status: EGates.CLOSED,
+    status: GateStatusEnum.CLOSED,
     labelPos: {
       x: 287.12,
       y: 1821.51,
@@ -33,7 +33,7 @@ export const gateInfo: IGateList = {
   },
   north: {
     name: "Northern Gate",
-    status: EGates.CLOSED,
+    status: GateStatusEnum.CLOSED,
     labelPos: {
       x: 135.09,
       y: 1942.37,

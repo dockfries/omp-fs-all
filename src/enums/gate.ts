@@ -1,4 +1,4 @@
-export const enum EGates {
+export const enum GateStatusEnum {
   CLOSED,
   CLOSING,
   OPEN,

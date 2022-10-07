@@ -17,8 +17,8 @@
  * 2 3D Text Labels = 1 on each gate
  */
 
-import { COLOR } from "@/enums/color";
-import { EGates } from "@/enums/gates";
+import { ColorEnum } from "@/enums/color";
+import { GateStatusEnum } from "@/enums/gate";
 import { A51FilterScript, IA51Options } from "@/interfaces";
 import {
   addCbListener,
@@ -53,12 +53,16 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
     const { north, east } = gateInfo;
     if (object === north.instance) {
       gateInfo.north.status =
-        north.status === EGates.CLOSING ? EGates.CLOSED : EGates.OPEN;
+        north.status === GateStatusEnum.CLOSING
+          ? GateStatusEnum.CLOSED
+          : GateStatusEnum.OPEN;
       return 1;
     }
     if (object === east.instance) {
       gateInfo.east.status =
-        east.status === EGates.CLOSING ? EGates.CLOSED : EGates.OPEN;
+        east.status === GateStatusEnum.CLOSING
+          ? GateStatusEnum.CLOSED
+          : GateStatusEnum.OPEN;
       return 1;
     }
     return 1;
@@ -281,24 +285,24 @@ class Fs<P extends BasePlayer> {
 
     const { onGateMoving } = this.options;
 
-    if (status === EGates.OPENING) {
+    if (status === GateStatusEnum.OPENING) {
       if (onGateMoving) {
         onGateMoving(player, direction, status);
         return;
       }
       player.sendClientMessage(
-        COLOR.MESSAGE_YELLOW,
+        ColorEnum.MESSAGE_YELLOW,
         `* Sorry, you must wait for the ${doorLowName} to fully open first.`
       );
     }
 
-    if (status === EGates.CLOSING) {
+    if (status === GateStatusEnum.CLOSING) {
       if (onGateMoving) {
         onGateMoving(player, direction, status);
         return;
       }
       player.sendClientMessage(
-        COLOR.MESSAGE_YELLOW,
+        ColorEnum.MESSAGE_YELLOW,
         `* Sorry, you must wait for the ${doorLowName} to fully close first.`
       );
     }
@@ -332,7 +336,7 @@ class Fs<P extends BasePlayer> {
       rz: crz,
     } = closePos;
 
-    if (status === EGates.CLOSED) {
+    if (status === GateStatusEnum.CLOSED) {
       let openRes;
       if (onGateOpen) {
         openRes = onGateOpen(player, direction);
@@ -342,7 +346,7 @@ class Fs<P extends BasePlayer> {
       }
       if (!openRes) return;
       gateInfo[direction].instance?.move(ox, oy, oz, ospeed, orx, ory, orz);
-      gateInfo[direction].status = EGates.OPENING;
+      gateInfo[direction].status = GateStatusEnum.OPENING;
       return;
     }
     let closeRes;
@@ -354,7 +358,7 @@ class Fs<P extends BasePlayer> {
     }
     if (!closeRes) return;
     gateInfo[direction].instance?.move(cx, cy, cz, cspeed, crx, cry, crz);
-    gateInfo[direction].status = EGates.CLOSING;
+    gateInfo[direction].status = GateStatusEnum.CLOSING;
     return;
   }
   private whichDoor(player: P): "east" | "north" | void {

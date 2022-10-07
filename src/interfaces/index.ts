@@ -1,10 +1,10 @@
-import { EGates } from "@/enums/gates";
+import { GateStatusEnum } from "@/enums/gate";
 import {
   BaseGameMode,
   BasePlayer,
   BasePlayerEvent,
   DynamicObject,
-  TFilterScript,
+  IFilterScript,
 } from "omp-node-lib";
 
 export interface IPosition {
@@ -20,7 +20,7 @@ export interface IMovePosition extends IPosition {
   rz: number;
 }
 
-export interface A51FilterScript extends TFilterScript {
+export interface A51FilterScript extends IFilterScript {
   load(gm: BaseGameMode, ...args: Array<unknown>): void;
 }
 
@@ -33,7 +33,7 @@ export interface IA51Options<P extends BasePlayer> {
   onGateMoving?: (
     player: P,
     direction: keyof IGateList,
-    status: EGates
+    status: GateStatusEnum
   ) => boolean;
   onGateOpen?: (player: P, direction: keyof IGateList) => boolean;
   onGateClose?: (player: P, direction: keyof IGateList) => boolean;
@@ -41,7 +41,7 @@ export interface IA51Options<P extends BasePlayer> {
 
 export interface IGateInfo {
   name: string;
-  status: EGates;
+  status: GateStatusEnum;
   labelPos: IPosition;
   openPos: IMovePosition;
   closePos: IMovePosition;
