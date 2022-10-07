@@ -118,8 +118,8 @@ class Fs<P extends BasePlayer> {
   private load() {
     const { charset = "utf8", playerEvent } = this.options;
 
-    this.loadStreamers(playerEvent, charset);
     this.registerEvent(playerEvent);
+    this.loadStreamers(playerEvent, charset);
     this.registerCommand();
 
     console.log("\n");
@@ -227,16 +227,14 @@ class Fs<P extends BasePlayer> {
   private registerEvent(playerEvent: BasePlayerEvent<P>) {
     const c_fn = (playerid: unknown) => {
       const p = playerEvent.findPlayerById(playerid as number);
-      if (!p) return;
-      this.removeBuilding(p);
+      if (p) this.removeBuilding(p);
       return 1;
     };
     addCbListener("OnPlayerConnect", c_fn);
 
     const ksc_fn = (playerid: unknown, newkeys: unknown) => {
       const p = playerEvent.findPlayerById(playerid as number);
-      if (!p) return;
-      this.moveGate(playerEvent, p, newkeys as KeysEnum);
+      if (p) this.moveGate(playerEvent, p, newkeys as KeysEnum);
       return 1;
     };
     addCbListener("OnPlayerKeyStateChange", ksc_fn);
