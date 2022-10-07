@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const registeredCbs: Set<[string, (...args: any[]) => any]> = new Set();
 
 export const addCbListener = (

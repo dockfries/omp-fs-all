@@ -1,25 +1,26 @@
 import { COLOR } from "@/enums/color";
+import { TGateList } from "@/types";
 import { Dynamic3DTextLabel } from "omp-node-lib";
 
-export const A51TextLabels = (gateNames: [string, string], charset: string) => {
+export const A51TextLabels = (gate: TGateList, charset: string) => {
   return [
     new Dynamic3DTextLabel({
       charset,
-      text: `{CCCCCC}[${gateNames[0]}]\n{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to open or close the gate`,
+      text: `{CCCCCC}[${gate.north.name}]\n{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to open or close the gate`,
       color: COLOR.GATES_LABEL,
-      x: 135.09,
-      y: 1942.37,
-      z: 19.82,
+      x: gate.north.labelPos.x,
+      y: gate.north.labelPos.y,
+      z: gate.north.labelPos.z,
       drawdistance: 10.5,
       worldid: 0,
     }),
     new Dynamic3DTextLabel({
       charset,
-      text: `{CCCCCC}[${gateNames[1]}]\n{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to open or close the gate`,
+      text: `{CCCCCC}[${gate.east.name}]\n{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to open or close the gate`,
       color: COLOR.GATES_LABEL,
-      x: 287.12,
-      y: 1821.51,
-      z: 18.14,
+      x: gate.east.labelPos.x,
+      y: gate.east.labelPos.y,
+      z: gate.east.labelPos.z,
       drawdistance: 10.5,
       worldid: 0,
     }),

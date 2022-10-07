@@ -1,6 +1,67 @@
+import { GATES } from "@/enums/gates";
+import { TGateList } from "@/types";
 import { DynamicObject } from "omp-node-lib";
 
-export const A51Objects = (charset: string) => {
+export const gateInfo: TGateList = {
+  east: {
+    name: "Eastern Gate",
+    status: GATES.CLOSED,
+    labelPos: {
+      x: 287.12,
+      y: 1821.51,
+      z: 18.14,
+    },
+    instance: null,
+    openPos: {
+      x: 286.008666,
+      y: 1833.744628,
+      z: 20.010623,
+      speed: 1.1,
+      rx: 0,
+      ry: 0,
+      rz: 90,
+    },
+    closePos: {
+      x: 286.008666,
+      y: 1822.744628,
+      z: 20.010623,
+      speed: 1.1,
+      rx: 0,
+      ry: 0,
+      rz: 90,
+    },
+  },
+  north: {
+    name: "Northern Gate",
+    status: GATES.CLOSED,
+    labelPos: {
+      x: 135.09,
+      y: 1942.37,
+      z: 19.82,
+    },
+    instance: null,
+    openPos: {
+      x: 121.545074,
+      y: 1941.527709,
+      z: 21.691408,
+      speed: 1.3,
+      rx: 0,
+      ry: 0,
+      rz: 180,
+    },
+    closePos: {
+      x: 134.545074,
+      y: 1941.527709,
+      z: 21.691408,
+      speed: 1.3,
+      rx: 0,
+      ry: 0,
+      rz: 180,
+    },
+  },
+};
+
+export const A51ObjectsFactory = (charset: string) => {
   const A51LandObject: DynamicObject = new DynamicObject({
     modelid: 11692,
     x: 199.344,
@@ -93,24 +154,26 @@ export const A51Objects = (charset: string) => {
     rz: 0,
     charset,
   });
+  const { openPos: nOpenPos } = gateInfo.north;
   const A51NorthernGate: DynamicObject = new DynamicObject({
     modelid: 19313,
-    x: 134.545074,
-    y: 1941.527709,
-    z: 21.691408,
-    rx: 0,
-    ry: 0,
-    rz: 180.0,
+    x: nOpenPos.x,
+    y: nOpenPos.y,
+    z: nOpenPos.z,
+    rx: nOpenPos.rx,
+    ry: nOpenPos.ry,
+    rz: nOpenPos.rz,
     charset,
   });
+  const { openPos: eOpenPos } = gateInfo.east;
   const A51EasternGate: DynamicObject = new DynamicObject({
     modelid: 19313,
-    x: 286.008666,
-    y: 1822.744628,
-    z: 20.010623,
-    rx: 0,
-    ry: 0,
-    rz: 90.0,
+    x: eOpenPos.x,
+    y: eOpenPos.y,
+    z: eOpenPos.z,
+    rx: eOpenPos.rx,
+    ry: eOpenPos.ry,
+    rz: eOpenPos.rz,
     charset,
   });
   return {

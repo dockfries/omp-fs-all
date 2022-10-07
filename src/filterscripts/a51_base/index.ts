@@ -19,6 +19,7 @@
 
 import { COLOR } from "@/enums/color";
 import { GATES } from "@/enums/gates";
+import { TGateList } from "@/types";
 import {
   addCbListener,
   removeCbListener,
@@ -40,35 +41,32 @@ import {
   BaseGameMode,
 } from "omp-node-lib";
 import { A51TextLabels } from "./label";
-import { A51Objects } from "./object";
-
-let NorthernGateStatus = GATES.CLOSED;
-let EasternGateStatus = GATES.CLOSED;
+import { A51ObjectsFactory, gateInfo } from "./object";
 
 let A51LandObject: DynamicObject | null = null;
 let A51Fence: DynamicObject | null = null;
 let A51Buildings: Array<DynamicObject> | null = null;
-let A51NorthernGate: DynamicObject | null = null;
-let A51EasternGate: DynamicObject | null = null;
 
 class MyDynamicObjectEvent extends DynamicObjectEvent<
   BasePlayer,
   DynamicObject
 > {
   protected onMoved(object: DynamicObject): TCommonCallback {
-    if (object === A51NorthernGate) {
-      NorthernGateStatus =
-        NorthernGateStatus === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
+    const { north, east } = gateInfo;
+    if (object === north.instance) {
+      gateInfo.north.status =
+        north.status === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
       return 1;
     }
-    if (object === A51EasternGate) {
-      EasternGateStatus =
-        EasternGateStatus === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
+    if (object === east.instance) {
+      gateInfo.east.status =
+        east.status === GATES.CLOSING ? GATES.CLOSED : GATES.OPEN;
       return 1;
     }
     return 1;
   }
   //#region
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   protected onPlayerEdit(
     player: BasePlayer,
     object: DynamicObject,
@@ -98,11 +96,12 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
     object: DynamicObject,
     x: number,
     y: number,
+
     z: number
   ): TCommonCallback {
     return 1;
   }
-
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   //#endregion
 }
 
@@ -111,9 +110,16 @@ export interface IA51Options<P extends BasePlayer> {
   command?: string | Array<string>;
   debug?: boolean;
   charset?: string;
+  beforeMoveGate?: (player: P) => boolean;
+  onGateMoving?: (
+    player: P,
+    direction: keyof TGateList,
+    status: GATES
+  ) => boolean;
+  onGateOpen?: (player: P, direction: keyof TGateList) => boolean;
+  onGateClose?: (player: P, direction: keyof TGateList) => boolean;
 }
 class Fs<P extends BasePlayer> {
-  private GateNames: [string, string] = ["Northern Gate", "Eastern Gate"];
   private labelGates: Array<Dynamic3DTextLabel> = [];
   private options: IA51Options<P>;
   private objectEvent: MyDynamicObjectEvent | null = null;
@@ -170,14 +176,14 @@ class Fs<P extends BasePlayer> {
   private loadStreamers(playerEvent: BasePlayerEvent<P>, charset: string) {
     // event should before create
     this.objectEvent = new MyDynamicObjectEvent(playerEvent.getPlayersMap());
-
+    let nInstance, eInstance;
     ({
       A51LandObject,
       A51Fence,
       A51Buildings,
-      A51NorthernGate,
-      A51EasternGate,
-    } = A51Objects(charset));
+      A51NorthernGate: nInstance,
+      A51EasternGate: eInstance,
+    } = A51ObjectsFactory(charset));
 
     A51LandObject.create();
     this.log("  |--  Area 51 (69) Land object created");
@@ -188,11 +194,11 @@ class Fs<P extends BasePlayer> {
     A51Buildings.forEach((o) => o.create());
     this.log("  |--  Area 51 (69) Building objects created");
 
-    A51NorthernGate.create();
-    A51EasternGate.create();
+    (gateInfo.north.instance = nInstance).create();
+    (gateInfo.east.instance = eInstance).create();
     this.log("  |--  Area 51 (69) Gate objects created");
 
-    this.labelGates = A51TextLabels(this.GateNames, charset);
+    this.labelGates = A51TextLabels(gateInfo, charset);
     this.labelGates.forEach((t) => t.create());
     this.log("  |--  Area 51 (69) Gates 3D Text Labels created");
     this.log("  |---------------------------------------------------");
@@ -213,11 +219,11 @@ class Fs<P extends BasePlayer> {
       this.log("  |--  Area 51 (69) Fence object destroyed");
     }
 
-    if (this.destroyValidObject(A51NorthernGate)) {
+    if (this.destroyValidObject(gateInfo.north.instance)) {
       this.log("  |--  Area 51 (69) Northern Gate object destroyed");
     }
 
-    if (this.destroyValidObject(A51EasternGate)) {
+    if (this.destroyValidObject(gateInfo.east.instance)) {
       this.log("  |--  Area 51 (69) Eastern Gate object destroyed");
     }
 
@@ -269,88 +275,110 @@ class Fs<P extends BasePlayer> {
     playerEvent: BasePlayerEvent<P>,
     player: P,
     newkeys: KeysEnum
-  ) {
+  ): void {
     if (!(newkeys & KeysEnum.YES)) return;
-    if (player.isInRangeOfPoint(10.0, 287.12, 1821.51, 18.14)) {
-      if (EasternGateStatus === GATES.OPENING) {
-        player.sendClientMessage(
-          COLOR.MESSAGE_YELLOW,
-          "* Sorry, you must wait for the eastern gate to fully open first."
-        );
+    const { beforeMoveGate, onGateOpen, onGateClose } = this.options;
+    if (beforeMoveGate) {
+      const res = beforeMoveGate(player);
+      if (!res) return;
+    }
+    const direction = this.whichDoor(player);
+    if (!direction) return;
+
+    const {
+      name,
+      status,
+      labelPos: position,
+      openPos,
+      closePos,
+    } = gateInfo[direction];
+
+    const doorLowName = name.toLowerCase();
+
+    const { onGateMoving } = this.options;
+
+    if (status === GATES.OPENING) {
+      if (onGateMoving) {
+        onGateMoving(player, direction, status);
         return;
       }
-      if (EasternGateStatus === GATES.CLOSING) {
-        player.sendClientMessage(
-          COLOR.MESSAGE_YELLOW,
-          "* Sorry, you must wait for the eastern gate to fully close first."
-        );
-        return;
-      }
-      PlaySoundForPlayersInRange(
-        playerEvent.getPlayersArr(),
-        1035,
-        50.0,
-        287.12,
-        1821.51,
-        18.14
+      player.sendClientMessage(
+        COLOR.MESSAGE_YELLOW,
+        `* Sorry, you must wait for the ${doorLowName} to fully open first.`
       );
-      if (EasternGateStatus === GATES.CLOSED) {
-        const gt = new BaseGameText("~b~~h~Eastern Gate Opening!", 3000, 3);
-        gt.forPlayer(player);
-        A51EasternGate?.move(286.008666, 1833.744628, 20.010623, 1.1, 0, 0, 90);
-        EasternGateStatus = GATES.OPENING;
+    }
+
+    if (status === GATES.CLOSING) {
+      if (onGateMoving) {
+        onGateMoving(player, direction, status);
         return;
       }
-      const gt = new BaseGameText("~b~~h~Eastern Gate Closing!", 3000, 3);
-      gt.forPlayer(player);
-      A51EasternGate?.move(286.008666, 1822.744628, 20.010623, 1.1, 0, 0, 90);
-      EasternGateStatus = GATES.CLOSING;
+      player.sendClientMessage(
+        COLOR.MESSAGE_YELLOW,
+        `* Sorry, you must wait for the ${doorLowName} to fully close first.`
+      );
+    }
+
+    PlaySoundForPlayersInRange(
+      playerEvent.getPlayersArr(),
+      1035,
+      50.0,
+      position.x,
+      position.y,
+      position.z
+    );
+
+    const {
+      x: ox,
+      y: oy,
+      z: oz,
+      speed: ospeed,
+      rx: orx,
+      ry: ory,
+      rz: orz,
+    } = openPos;
+
+    const {
+      x: cx,
+      y: cy,
+      z: cz,
+      speed: cspeed,
+      rx: crx,
+      ry: cry,
+      rz: crz,
+    } = closePos;
+
+    if (status === GATES.CLOSED) {
+      let openRes;
+      if (onGateOpen) {
+        openRes = onGateOpen(player, direction);
+      } else {
+        const gt = new BaseGameText(`~b~~h~${doorLowName} Opening!`, 3000, 3);
+        gt.forPlayer(player);
+      }
+      if (!openRes) return;
+      gateInfo[direction].instance?.move(ox, oy, oz, ospeed, orx, ory, orz);
+      gateInfo[direction].status = GATES.OPENING;
       return;
     }
-
-    if (player.isInRangeOfPoint(10.0, 135.09, 1942.37, 19.82)) {
-      if (NorthernGateStatus === GATES.OPENING) {
-        const msg =
-          "* Sorry, you must wait for the northern gate to fully open first.";
-        player.sendClientMessage(COLOR.MESSAGE_YELLOW, msg);
-        return;
-      }
-      if (NorthernGateStatus === GATES.CLOSING) {
-        const msg =
-          "* Sorry, you must wait for the northern gate to fully close first.";
-        player.sendClientMessage(COLOR.MESSAGE_YELLOW, msg);
-        return;
-      }
-
-      PlaySoundForPlayersInRange(
-        playerEvent.getPlayersArr(),
-        1035,
-        50.0,
-        135.09,
-        1942.37,
-        19.82
-      );
-      if (NorthernGateStatus === GATES.CLOSED) {
-        new BaseGameText("~b~~h~Northern Gate Opening!", 3000, 3).forPlayer(
-          player
-        );
-        A51NorthernGate?.move(
-          121.545074,
-          1941.527709,
-          21.691408,
-          1.3,
-          0,
-          0,
-          180
-        );
-        NorthernGateStatus = GATES.OPENING;
-        return;
-      }
-      const gt = new BaseGameText("~b~~h~Northern Gate Closing!", 3000, 3);
+    let closeRes;
+    if (onGateClose) {
+      closeRes = onGateClose(player, direction);
+    } else {
+      const gt = new BaseGameText(`~b~~h~${doorLowName} Closing!`, 3000, 3);
       gt.forPlayer(player);
-      A51NorthernGate?.move(134.545074, 1941.527709, 21.691408, 1.3, 0, 0, 180);
-      NorthernGateStatus = GATES.CLOSING;
     }
+    if (!closeRes) return;
+    gateInfo[direction].instance?.move(cx, cy, cz, cspeed, crx, cry, crz);
+    gateInfo[direction].status = GATES.CLOSING;
+    return;
+  }
+  private whichDoor(player: P): "east" | "north" | void {
+    const { x: ex, y: ey, z: ez } = gateInfo.east.labelPos;
+    const { x: nx, y: ny, z: nz } = gateInfo.north.labelPos;
+    if (player.isInRangeOfPoint(10.0, ex, ey, ez)) return "east";
+    if (player.isInRangeOfPoint(10.0, nx, ny, nz)) return "north";
+    return;
   }
 }
 
@@ -358,15 +386,18 @@ export type A51FilterScript<P extends BasePlayer> = TFilterScript & {
   load(gm: BaseGameMode, options: IA51Options<P>): void;
 };
 
-export const useA51BaseFS = <P extends BasePlayer>(): A51FilterScript<P> => {
-  let $el: Fs<P> | null = null;
+export const useA51BaseFS = <P extends BasePlayer>(
+  options: IA51Options<P>
+): A51FilterScript<P> => {
+  let $fs: Fs<P> | null = null;
   return {
     name: "a51_base",
-    load(gm: BaseGameMode, options: IA51Options<P>) {
-      $el = new Fs(options);
+    // load params : gm: BaseGameMode, args: ...
+    load() {
+      $fs = new Fs(options);
     },
     unload() {
-      if ($el) $el.unload();
+      if ($fs) $fs.unload();
     },
   };
 };
