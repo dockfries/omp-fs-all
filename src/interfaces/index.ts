@@ -37,6 +37,7 @@ export interface IA51Options<P extends BasePlayer> {
   ) => boolean;
   onGateOpen?: (player: P, direction: keyof IGateList) => boolean;
   onGateClose?: (player: P, direction: keyof IGateList) => boolean;
+  onTeleport?: (player: P) => unknown;
 }
 
 export interface IGateInfo {

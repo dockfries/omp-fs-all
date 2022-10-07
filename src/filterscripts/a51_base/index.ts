@@ -98,7 +98,6 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
     object: DynamicObject,
     x: number,
     y: number,
-
     z: number
   ): TCommonCallback {
     return 1;
@@ -243,13 +242,14 @@ class Fs<P extends BasePlayer> {
     registeredCbs.forEach((v) => removeCbListener(v[0], v[1]));
   }
   private registerCommand() {
-    const { playerEvent, command = "a51" } = this.options;
+    const { playerEvent, command = "a51", onTeleport } = this.options;
     playerEvent.onCommandText(command, (p) => {
       p.setInterior(0);
       p.setPos(135.2, 1948.51, 19.74);
       p.setFacingAngle(180);
       p.setCameraBehind();
-      new BaseGameText("~b~~h~Area 51 (69) Base!", 3000, 3).forPlayer(p);
+      if (onTeleport) onTeleport(p);
+      else new BaseGameText("~b~~h~Area 51 (69) Base!", 3000, 3).forPlayer(p);
       return 1;
     });
   }
