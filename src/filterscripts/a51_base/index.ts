@@ -193,6 +193,7 @@ class Fs<P extends BasePlayer> {
     this.log("  |--  Area 51 (69) Gate objects created");
 
     this.labelGates = A51TextLabels(this.GateNames, charset);
+    this.labelGates.forEach((t) => t.create());
     this.log("  |--  Area 51 (69) Gates 3D Text Labels created");
     this.log("  |---------------------------------------------------");
 
