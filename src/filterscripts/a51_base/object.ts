@@ -154,26 +154,26 @@ export const A51ObjectsFactory = (charset: string) => {
     rz: 0,
     charset,
   });
-  const { openPos: nOpenPos } = gateInfo.north;
+  const { closePos: nClosePos } = gateInfo.north;
   const A51NorthernGate: DynamicObject = new DynamicObject({
     modelid: 19313,
-    x: nOpenPos.x,
-    y: nOpenPos.y,
-    z: nOpenPos.z,
-    rx: nOpenPos.rx,
-    ry: nOpenPos.ry,
-    rz: nOpenPos.rz,
+    x: nClosePos.x,
+    y: nClosePos.y,
+    z: nClosePos.z,
+    rx: nClosePos.rx,
+    ry: nClosePos.ry,
+    rz: nClosePos.rz,
     charset,
   });
-  const { openPos: eOpenPos } = gateInfo.east;
+  const { closePos: eClosePos } = gateInfo.east;
   const A51EasternGate: DynamicObject = new DynamicObject({
     modelid: 19313,
-    x: eOpenPos.x,
-    y: eOpenPos.y,
-    z: eOpenPos.z,
-    rx: eOpenPos.rx,
-    ry: eOpenPos.ry,
-    rz: eOpenPos.rz,
+    x: eClosePos.x,
+    y: eClosePos.y,
+    z: eClosePos.z,
+    rx: eClosePos.rx,
+    ry: eClosePos.ry,
+    rz: eClosePos.rz,
     charset,
   });
   return {

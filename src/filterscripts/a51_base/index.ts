@@ -344,7 +344,7 @@ class Fs<P extends BasePlayer> {
         const gt = new BaseGameText(`~b~~h~${doorLowName} Opening!`, 3000, 3);
         gt.forPlayer(player);
       }
-      if (!openRes) return;
+      if (onGateOpen && !openRes) return;
       gateInfo[direction].instance?.move(ox, oy, oz, ospeed, orx, ory, orz);
       gateInfo[direction].status = GateStatusEnum.OPENING;
       return;
@@ -356,7 +356,7 @@ class Fs<P extends BasePlayer> {
       const gt = new BaseGameText(`~b~~h~${doorLowName} Closing!`, 3000, 3);
       gt.forPlayer(player);
     }
-    if (!closeRes) return;
+    if (onGateClose && !closeRes) return;
     gateInfo[direction].instance?.move(cx, cy, cz, cspeed, crx, cry, crz);
     gateInfo[direction].status = GateStatusEnum.CLOSING;
     return;
