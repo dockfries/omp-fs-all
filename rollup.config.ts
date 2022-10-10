@@ -1,5 +1,5 @@
-import typescript from "rollup-plugin-typescript2";
-import { terser } from "rollup-plugin-terser";
+import esbuild from "rollup-plugin-esbuild";
+import { typescriptPaths } from "rollup-plugin-typescript-paths";
 import del from "rollup-plugin-delete";
 import externals from "rollup-plugin-node-externals";
 import dts from "rollup-plugin-dts";
@@ -14,9 +14,9 @@ export default [
     output: { file: outputPath + "/bundle.js", format: "cjs" },
     plugins: [
       del({ targets: outputPath + "/*" }),
-      typescript(),
+      esbuild({ minify: true }),
+      typescriptPaths({ preserveExtensions: true }),
       externals(),
-      terser(),
     ],
   },
   {
