@@ -1,6 +1,6 @@
 {
   "name": "omp-fs-all",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A collection of all built-in filterscripts",
   "main": "dist/bundle.js",
   "types": "dist/bundle.d.ts",
@@ -48,6 +48,6 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "omp-node-lib": "0.5.8"
+    "omp-node-lib": "0.5.9"
   }
 }
