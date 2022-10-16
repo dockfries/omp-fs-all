@@ -39,11 +39,10 @@ export interface IA51Options<P extends BasePlayer> {
   onGateOpen?: (player: P, direction: keyof IGateList) => boolean;
   onGateClose?: (player: P, direction: keyof IGateList) => boolean;
   onTeleport?: (player: P) => unknown;
-  onLabelStreamIn?: (label: Dynamic3DTextLabel) => {
-    color: string;
-    text: string;
-  };
-  onLabelStreamOut?: (label: Dynamic3DTextLabel) => {
+  onLabelStreamIn?: (
+    label: Dynamic3DTextLabel,
+    player: P
+  ) => {
     color: string;
     text: string;
   };

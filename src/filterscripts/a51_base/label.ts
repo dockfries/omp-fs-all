@@ -46,26 +46,20 @@ export class My3dTextLabelEvent<
     super(options.playerEvent.getPlayersMap());
     this.options = options;
   }
-  protected onStreamIn(
-    label: Dynamic3DTextLabel,
-    player: BasePlayer
-  ): TCommonCallback {
+  protected onStreamIn(label: Dynamic3DTextLabel, player: P): TCommonCallback {
     const { onLabelStreamIn } = this.options;
     if (onLabelStreamIn) {
-      const { color, text } = onLabelStreamIn(label);
-      label.updateText(color, text, player.charset);
+      const { color, text } = onLabelStreamIn(label, player);
+      label.updateText(
+        color || label.getColor() || "#fff",
+        text,
+        player.charset
+      );
     }
     return 1;
   }
-  protected onStreamOut(
-    label: Dynamic3DTextLabel,
-    player: BasePlayer
-  ): TCommonCallback {
-    const { onLabelStreamOut } = this.options;
-    if (onLabelStreamOut) {
-      const { color, text } = onLabelStreamOut(label);
-      label.updateText(color, text, player.charset);
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected onStreamOut(label: Dynamic3DTextLabel, player: P): TCommonCallback {
     return 1;
   }
 }
