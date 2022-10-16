@@ -1,8 +1,17 @@
 import { ColorEnum } from "@/enums/color";
-import { IGateList } from "@/interfaces";
-import { Dynamic3DTextLabel } from "omp-node-lib";
+import { IA51Options, IGateList } from "@/interfaces";
+import {
+  BasePlayer,
+  Dynamic3DTextLabel,
+  Dynamic3dTextLabelEvent,
+  TCommonCallback,
+} from "omp-node-lib";
 
-export const A51TextLabels = (gate: IGateList, charset: string) => {
+export const A51TextLabels = (
+  gate: IGateList,
+  charset: string,
+  player: BasePlayer
+) => {
   return [
     new Dynamic3DTextLabel({
       charset,
@@ -13,6 +22,7 @@ export const A51TextLabels = (gate: IGateList, charset: string) => {
       z: gate.north.labelPos.z,
       drawdistance: 10.5,
       worldid: 0,
+      playerid: player.id,
     }),
     new Dynamic3DTextLabel({
       charset,
@@ -23,6 +33,39 @@ export const A51TextLabels = (gate: IGateList, charset: string) => {
       z: gate.east.labelPos.z,
       drawdistance: 10.5,
       worldid: 0,
+      playerid: player.id,
     }),
   ];
 };
+
+export class My3dTextLabelEvent<
+  P extends BasePlayer
+> extends Dynamic3dTextLabelEvent<P, Dynamic3DTextLabel> {
+  private options: IA51Options<P>;
+  constructor(options: IA51Options<P>) {
+    super(options.playerEvent.getPlayersMap());
+    this.options = options;
+  }
+  protected onStreamIn(
+    label: Dynamic3DTextLabel,
+    player: BasePlayer
+  ): TCommonCallback {
+    const { onLabelStreamIn } = this.options;
+    if (onLabelStreamIn) {
+      const { color, text } = onLabelStreamIn(label);
+      label.updateText(color, text, player.charset);
+    }
+    return 1;
+  }
+  protected onStreamOut(
+    label: Dynamic3DTextLabel,
+    player: BasePlayer
+  ): TCommonCallback {
+    const { onLabelStreamOut } = this.options;
+    if (onLabelStreamOut) {
+      const { color, text } = onLabelStreamOut(label);
+      label.updateText(color, text, player.charset);
+    }
+    return 1;
+  }
+}

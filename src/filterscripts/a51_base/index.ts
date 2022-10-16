@@ -33,83 +33,20 @@ import {
   BasePlayerEvent,
   Dynamic3DTextLabel,
   DynamicObject,
-  TCommonCallback,
-  DynamicObjectEvent,
-  EditResponseTypesEnum,
   KeysEnum,
 } from "omp-node-lib";
-import { A51TextLabels } from "./label";
-import { A51ObjectsFactory, gateInfo } from "./object";
+import { A51TextLabels, My3dTextLabelEvent } from "./label";
+import { A51ObjectsFactory, gateInfo, MyDynamicObjectEvent } from "./object";
 
 let A51LandObject: DynamicObject | null = null;
 let A51Fence: DynamicObject | null = null;
 let A51Buildings: Array<DynamicObject> | null = null;
 
-class MyDynamicObjectEvent extends DynamicObjectEvent<
-  BasePlayer,
-  DynamicObject
-> {
-  protected onMoved(object: DynamicObject): TCommonCallback {
-    const { north, east } = gateInfo;
-    if (object === north.instance) {
-      gateInfo.north.status =
-        north.status === GateStatusEnum.CLOSING
-          ? GateStatusEnum.CLOSED
-          : GateStatusEnum.OPEN;
-      return 1;
-    }
-    if (object === east.instance) {
-      gateInfo.east.status =
-        east.status === GateStatusEnum.CLOSING
-          ? GateStatusEnum.CLOSED
-          : GateStatusEnum.OPEN;
-      return 1;
-    }
-    return 1;
-  }
-  //#region
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  protected onPlayerEdit(
-    player: BasePlayer,
-    object: DynamicObject,
-    response: EditResponseTypesEnum,
-    x: number,
-    y: number,
-    z: number,
-    rx: number,
-    ry: number,
-    rz: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onPlayerSelect(
-    player: BasePlayer,
-    object: DynamicObject,
-    modelid: number,
-    x: number,
-    y: number,
-    z: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onPlayerShoot(
-    player: BasePlayer,
-    weaponid: number,
-    object: DynamicObject,
-    x: number,
-    y: number,
-    z: number
-  ): TCommonCallback {
-    return 1;
-  }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-  //#endregion
-}
-
 class Fs<P extends BasePlayer> {
   private labelGates: Array<Dynamic3DTextLabel> = [];
   private options: IA51Options<P>;
   private objectEvent: MyDynamicObjectEvent | null = null;
+  private textLabelEvent: My3dTextLabelEvent<P> | null = null;
   constructor(options: IA51Options<P>) {
     this.options = options;
     this.load();
@@ -117,10 +54,9 @@ class Fs<P extends BasePlayer> {
   private load() {
     const { charset = "utf8", playerEvent } = this.options;
 
-    this.registerEvent(playerEvent);
+    this.registerEvent(playerEvent, charset);
     this.loadStreamers(playerEvent, charset);
     this.registerCommand();
-
     console.log("\n");
     console.log("  |---------------------------------------------------");
     console.log("  |--- Area 51 (69) Building Objects Filterscript");
@@ -185,15 +121,14 @@ class Fs<P extends BasePlayer> {
     (gateInfo.east.instance = eInstance).create();
     this.log("  |--  Area 51 (69) Gate objects created");
 
-    this.labelGates = A51TextLabels(gateInfo, charset);
-    this.labelGates.forEach((t) => t.create());
-    this.log("  |--  Area 51 (69) Gates 3D Text Labels created");
-    this.log("  |---------------------------------------------------");
+    this.textLabelEvent = new My3dTextLabelEvent(this.options);
 
     playerEvent.getPlayersArr().forEach((p) => {
       if (!p.isConnected() || p.isNpc()) return;
       this.removeBuilding(p);
     });
+
+    this.log("  |---------------------------------------------------");
   }
   private unloadStreamers() {
     this.objectEvent = null;
@@ -220,13 +155,20 @@ class Fs<P extends BasePlayer> {
       }
     });
 
-    this.labelGates.forEach((t) => t.destroy());
+    this.labelGates.forEach((t) => t.isValid() && t.destroy());
     this.log("  |--  Deleted the 3D Text Labels on the Area 51 (69) Gates");
   }
-  private registerEvent(playerEvent: BasePlayerEvent<P>) {
+  private registerEvent(playerEvent: BasePlayerEvent<P>, charset: string) {
     const c_fn = (playerid: unknown) => {
       const p = playerEvent.findPlayerById(playerid as number);
-      if (p) this.removeBuilding(p);
+      if (p) {
+        this.removeBuilding(p);
+        this.labelGates = A51TextLabels(gateInfo, charset, p);
+        this.labelGates.forEach((t) => {
+          t.create()?.toggleCallbacks();
+        });
+        this.log("  |--  Area 51 (69) Gates 3D Text Labels created for player");
+      }
       return 1;
     };
     addCbListener("OnPlayerConnect", c_fn);

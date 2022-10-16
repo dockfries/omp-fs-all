@@ -1,6 +1,12 @@
 import { GateStatusEnum } from "@/enums/gate";
 import { IGateList } from "@/interfaces";
-import { DynamicObject } from "omp-node-lib";
+import {
+  BasePlayer,
+  DynamicObject,
+  DynamicObjectEvent,
+  EditResponseTypesEnum,
+  TCommonCallback,
+} from "omp-node-lib";
 
 export const gateInfo: IGateList = {
   east: {
@@ -184,3 +190,76 @@ export const A51ObjectsFactory = (charset: string) => {
     A51EasternGate,
   };
 };
+
+export class MyDynamicObjectEvent extends DynamicObjectEvent<
+  BasePlayer,
+  DynamicObject
+> {
+  protected onMoved(object: DynamicObject): TCommonCallback {
+    const { north, east } = gateInfo;
+    if (object === north.instance) {
+      gateInfo.north.status =
+        north.status === GateStatusEnum.CLOSING
+          ? GateStatusEnum.CLOSED
+          : GateStatusEnum.OPEN;
+      return 1;
+    }
+    if (object === east.instance) {
+      gateInfo.east.status =
+        east.status === GateStatusEnum.CLOSING
+          ? GateStatusEnum.CLOSED
+          : GateStatusEnum.OPEN;
+      return 1;
+    }
+    return 1;
+  }
+  //#region
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  protected onPlayerEdit(
+    player: BasePlayer,
+    object: DynamicObject,
+    response: EditResponseTypesEnum,
+    x: number,
+    y: number,
+    z: number,
+    rx: number,
+    ry: number,
+    rz: number
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onPlayerSelect(
+    player: BasePlayer,
+    object: DynamicObject,
+    modelid: number,
+    x: number,
+    y: number,
+    z: number
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onPlayerShoot(
+    player: BasePlayer,
+    weaponid: number,
+    object: DynamicObject,
+    x: number,
+    y: number,
+    z: number
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onStreamIn(
+    object: DynamicObject,
+    player: BasePlayer
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onStreamOut(
+    object: DynamicObject,
+    player: BasePlayer
+  ): TCommonCallback {
+    return 1;
+  }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  //#endregion
+}

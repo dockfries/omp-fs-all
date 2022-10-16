@@ -3,6 +3,7 @@ import {
   BaseGameMode,
   BasePlayer,
   BasePlayerEvent,
+  Dynamic3DTextLabel,
   DynamicObject,
   IFilterScript,
 } from "omp-node-lib";
@@ -38,6 +39,14 @@ export interface IA51Options<P extends BasePlayer> {
   onGateOpen?: (player: P, direction: keyof IGateList) => boolean;
   onGateClose?: (player: P, direction: keyof IGateList) => boolean;
   onTeleport?: (player: P) => unknown;
+  onLabelStreamIn?: (label: Dynamic3DTextLabel) => {
+    color: string;
+    text: string;
+  };
+  onLabelStreamOut?: (label: Dynamic3DTextLabel) => {
+    color: string;
+    text: string;
+  };
 }
 
 export interface IGateInfo {
