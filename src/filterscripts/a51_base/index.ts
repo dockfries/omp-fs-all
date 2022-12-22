@@ -98,7 +98,10 @@ class Fs<P extends BasePlayer> {
   }
   private loadStreamers(playerEvent: BasePlayerEvent<P>, charset: string) {
     // event should before create
-    this.objectEvent = new MyDynamicObjectEvent(playerEvent.getPlayersMap());
+    this.objectEvent = new MyDynamicObjectEvent(
+      playerEvent.getPlayersMap(),
+      false
+    );
     let nInstance, eInstance;
     ({
       A51LandObject,
@@ -106,7 +109,7 @@ class Fs<P extends BasePlayer> {
       A51Buildings,
       A51NorthernGate: nInstance,
       A51EasternGate: eInstance,
-    } = A51ObjectsFactory(charset));
+    } = A51ObjectsFactory(charset, this.objectEvent));
 
     A51LandObject.create();
     this.log("  |--  Area 51 (69) Land object created");

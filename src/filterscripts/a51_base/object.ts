@@ -67,7 +67,83 @@ export const gateInfo: IGateList = {
   },
 };
 
-export const A51ObjectsFactory = (charset: string) => {
+export class MyDynamicObjectEvent extends DynamicObjectEvent<
+  BasePlayer,
+  DynamicObject
+> {
+  protected onMoved(object: DynamicObject): TCommonCallback {
+    const { north, east } = gateInfo;
+    if (object === north.instance) {
+      gateInfo.north.status =
+        north.status === GateStatusEnum.CLOSING
+          ? GateStatusEnum.CLOSED
+          : GateStatusEnum.OPEN;
+      return 1;
+    }
+    if (object === east.instance) {
+      gateInfo.east.status =
+        east.status === GateStatusEnum.CLOSING
+          ? GateStatusEnum.CLOSED
+          : GateStatusEnum.OPEN;
+      return 1;
+    }
+    return 1;
+  }
+  //#region
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  protected onPlayerEdit(
+    player: BasePlayer,
+    object: DynamicObject,
+    response: EditResponseTypesEnum,
+    x: number,
+    y: number,
+    z: number,
+    rx: number,
+    ry: number,
+    rz: number
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onPlayerSelect(
+    player: BasePlayer,
+    object: DynamicObject,
+    modelid: number,
+    x: number,
+    y: number,
+    z: number
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onPlayerShoot(
+    player: BasePlayer,
+    weaponid: number,
+    object: DynamicObject,
+    x: number,
+    y: number,
+    z: number
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onStreamIn(
+    object: DynamicObject,
+    player: BasePlayer
+  ): TCommonCallback {
+    return 1;
+  }
+  protected onStreamOut(
+    object: DynamicObject,
+    player: BasePlayer
+  ): TCommonCallback {
+    return 1;
+  }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  //#endregion
+}
+
+export const A51ObjectsFactory = (
+  charset: string,
+  handler: MyDynamicObjectEvent
+) => {
   const A51LandObject: DynamicObject = new DynamicObject({
     modelid: 11692,
     x: 199.344,
@@ -170,6 +246,7 @@ export const A51ObjectsFactory = (charset: string) => {
     ry: nClosePos.ry,
     rz: nClosePos.rz,
     charset,
+    handler,
   });
   const { closePos: eClosePos } = gateInfo.east;
   const A51EasternGate: DynamicObject = new DynamicObject({
@@ -181,6 +258,7 @@ export const A51ObjectsFactory = (charset: string) => {
     ry: eClosePos.ry,
     rz: eClosePos.rz,
     charset,
+    handler,
   });
   return {
     A51LandObject,
@@ -190,76 +268,3 @@ export const A51ObjectsFactory = (charset: string) => {
     A51EasternGate,
   };
 };
-
-export class MyDynamicObjectEvent extends DynamicObjectEvent<
-  BasePlayer,
-  DynamicObject
-> {
-  protected onMoved(object: DynamicObject): TCommonCallback {
-    const { north, east } = gateInfo;
-    if (object === north.instance) {
-      gateInfo.north.status =
-        north.status === GateStatusEnum.CLOSING
-          ? GateStatusEnum.CLOSED
-          : GateStatusEnum.OPEN;
-      return 1;
-    }
-    if (object === east.instance) {
-      gateInfo.east.status =
-        east.status === GateStatusEnum.CLOSING
-          ? GateStatusEnum.CLOSED
-          : GateStatusEnum.OPEN;
-      return 1;
-    }
-    return 1;
-  }
-  //#region
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  protected onPlayerEdit(
-    player: BasePlayer,
-    object: DynamicObject,
-    response: EditResponseTypesEnum,
-    x: number,
-    y: number,
-    z: number,
-    rx: number,
-    ry: number,
-    rz: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onPlayerSelect(
-    player: BasePlayer,
-    object: DynamicObject,
-    modelid: number,
-    x: number,
-    y: number,
-    z: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onPlayerShoot(
-    player: BasePlayer,
-    weaponid: number,
-    object: DynamicObject,
-    x: number,
-    y: number,
-    z: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onStreamIn(
-    object: DynamicObject,
-    player: BasePlayer
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onStreamOut(
-    object: DynamicObject,
-    player: BasePlayer
-  ): TCommonCallback {
-    return 1;
-  }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-  //#endregion
-}

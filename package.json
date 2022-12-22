@@ -1,6 +1,6 @@
 {
   "name": "omp-fs-all",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A collection of all built-in filterscripts",
   "main": "dist/bundle.js",
   "types": "dist/bundle.d.ts",
@@ -34,8 +34,8 @@
   "devDependencies": {
     "@sa-mp/node": "^0.2.0",
     "@types/node": "^18.11.17",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.46.1",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0",
     "esbuild": "^0.15.18",
     "eslint": "^8.30.0",
     "husky": "^8.0.2",
@@ -48,6 +48,6 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "omp-node-lib": "0.5.9"
+    "omp-node-lib": "^0.6.1"
   }
 }
