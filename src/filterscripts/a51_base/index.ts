@@ -109,7 +109,7 @@ class Fs<P extends BasePlayer> {
       A51Buildings,
       A51NorthernGate: nInstance,
       A51EasternGate: eInstance,
-    } = A51ObjectsFactory(charset, this.objectEvent));
+    } = A51ObjectsFactory(charset));
 
     A51LandObject.create();
     this.log("  |--  Area 51 (69) Land object created");
@@ -124,7 +124,7 @@ class Fs<P extends BasePlayer> {
     (gateInfo.east.instance = eInstance).create();
     this.log("  |--  Area 51 (69) Gate objects created");
 
-    this.textLabelEvent = new My3dTextLabelEvent(this.options);
+    this.textLabelEvent = new My3dTextLabelEvent(this.options, false);
 
     playerEvent.getPlayersArr().forEach((p) => {
       if (!p.isConnected() || p.isNpc()) return;

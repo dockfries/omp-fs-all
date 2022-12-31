@@ -140,10 +140,7 @@ export class MyDynamicObjectEvent extends DynamicObjectEvent<
   //#endregion
 }
 
-export const A51ObjectsFactory = (
-  charset: string,
-  handler: MyDynamicObjectEvent
-) => {
+export const A51ObjectsFactory = (charset: string) => {
   const A51LandObject: DynamicObject = new DynamicObject({
     modelid: 11692,
     x: 199.344,
@@ -246,7 +243,6 @@ export const A51ObjectsFactory = (
     ry: nClosePos.ry,
     rz: nClosePos.rz,
     charset,
-    handler,
   });
   const { closePos: eClosePos } = gateInfo.east;
   const A51EasternGate: DynamicObject = new DynamicObject({
@@ -258,7 +254,6 @@ export const A51ObjectsFactory = (
     ry: eClosePos.ry,
     rz: eClosePos.rz,
     charset,
-    handler,
   });
   return {
     A51LandObject,

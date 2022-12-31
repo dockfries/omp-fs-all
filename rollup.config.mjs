@@ -4,7 +4,9 @@ import del from "rollup-plugin-delete";
 import externals from "rollup-plugin-node-externals";
 import dts from "rollup-plugin-dts";
 
-import { compilerOptions } from "./tsconfig.json";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const { compilerOptions } = require("./tsconfig.json");
 
 const inputPath = "./src/main.ts";
 const outputPath = "./dist";

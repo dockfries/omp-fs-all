@@ -42,8 +42,8 @@ export class My3dTextLabelEvent<
   P extends BasePlayer
 > extends Dynamic3dTextLabelEvent<P, Dynamic3DTextLabel> {
   private options: IA51Options<P>;
-  constructor(options: IA51Options<P>) {
-    super(options.playerEvent.getPlayersMap());
+  constructor(options: IA51Options<P>, destroyOnExit: boolean) {
+    super(options.playerEvent.getPlayersMap(), destroyOnExit);
     this.options = options;
   }
   protected onStreamIn(label: Dynamic3DTextLabel, player: P): TCommonCallback {
