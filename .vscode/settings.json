@@ -1,0 +1,5 @@
+{
+  "i18n-ally.localesPaths": ["src/filterscripts/**/locales"],
+  "i18n-ally.extract.autoDetect": false,
+  "i18n-ally.keystyle": "nested"
+}

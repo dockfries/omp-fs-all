@@ -35,6 +35,7 @@ import {
   DynamicObject,
   KeysEnum,
 } from "omp-node-lib";
+import { $t, addLocales } from "./i18n";
 import { A51TextLabels, My3dTextLabelEvent } from "./label";
 import { A51ObjectsFactory, gateInfo, MyDynamicObjectEvent } from "./object";
 
@@ -52,16 +53,17 @@ class Fs<P extends BasePlayer> {
     this.load();
   }
   private load() {
-    const { charset = "utf8", playerEvent } = this.options;
+    const { charset = "utf8", playerEvent, locales } = this.options;
+    if (locales) addLocales(locales);
 
     this.registerEvent(playerEvent, charset);
     this.loadStreamers(playerEvent, charset);
     this.registerCommand();
     console.log("\n");
     console.log("  |---------------------------------------------------");
-    console.log("  |--- Area 51 (69) Building Objects Filterscript");
-    console.log("  |--  Script v1.01");
-    console.log("  |--  28th March 2015");
+    console.log(`  |--- ${$t("a51.load.line-1")}`);
+    console.log(`  |--  ${$t("a51.load.line-2")}`);
+    console.log(`  |--  ${$t("a51.load.line-3")}`);
     console.log("  |---------------------------------------------------");
   }
   public unload() {
@@ -69,7 +71,7 @@ class Fs<P extends BasePlayer> {
     this.unregisterCommand();
     this.unloadStreamers();
     console.log("  |---------------------------------------------------");
-    console.log("  |--  Area 51 (69) Base Objects Filterscript Unloaded");
+    console.log(`  |--- ${$t("a51.unload.line-1")}`);
     console.log("  |---------------------------------------------------");
   }
   private removeBuilding(player: P) {
@@ -319,7 +321,6 @@ export const useA51BaseFS = <P extends BasePlayer>(options: IA51Options<P>) => {
   let $fs: Fs<P> | null = null;
   const use: A51FilterScript = {
     name: "a51_base",
-    // load params : gm: BaseGameMode, args: ...
     load() {
       $fs = new Fs(options);
     },
