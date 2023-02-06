@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/YuCarl77/omp-fs-all#readme",
   "devDependencies": {
+    "@rollup/plugin-json": "^6.0.0",
     "@sa-mp/node": "^0.2.0",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.47.1",

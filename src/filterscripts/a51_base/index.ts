@@ -33,11 +33,14 @@ import {
   BasePlayerEvent,
   Dynamic3DTextLabel,
   DynamicObject,
+  I18n,
   KeysEnum,
 } from "omp-node-lib";
-import { $t, addLocales } from "./i18n";
 import { A51TextLabels, My3dTextLabelEvent } from "./label";
 import { A51ObjectsFactory, gateInfo, MyDynamicObjectEvent } from "./object";
+
+import zh_cn from "./locales/zh-CN.json";
+import en_us from "./locales/en-US.json";
 
 let A51LandObject: DynamicObject | null = null;
 let A51Fence: DynamicObject | null = null;
@@ -48,22 +51,29 @@ class Fs<P extends BasePlayer> {
   private options: IA51Options<P>;
   private objectEvent: MyDynamicObjectEvent | null = null;
   private textLabelEvent: My3dTextLabelEvent<P> | null = null;
+  private i18n: I18n | null = null;
   constructor(options: IA51Options<P>) {
     this.options = options;
     this.load();
   }
   private load() {
-    const { charset = "utf8", playerEvent, locales } = this.options;
-    if (locales) addLocales(locales);
+    const {
+      charset = "utf8",
+      playerEvent,
+      locales,
+      defaultLocale,
+    } = this.options;
+    this.i18n = new I18n(defaultLocale, { zh_cn, en_us });
+    if (locales) this.i18n.addLocales(locales);
 
     this.registerEvent(playerEvent, charset);
     this.loadStreamers(playerEvent, charset);
     this.registerCommand();
     console.log("\n");
     console.log("  |---------------------------------------------------");
-    console.log(`  |--- ${$t("a51.load.line-1")}`);
-    console.log(`  |--  ${$t("a51.load.line-2")}`);
-    console.log(`  |--  ${$t("a51.load.line-3")}`);
+    console.log(`  |--- ${this.i18n.$t("a51.load.line-1")}`);
+    console.log(`  |--  ${this.i18n.$t("a51.load.line-2")}`);
+    console.log(`  |--  ${this.i18n.$t("a51.load.line-3")}`);
     console.log("  |---------------------------------------------------");
   }
   public unload() {
@@ -71,7 +81,7 @@ class Fs<P extends BasePlayer> {
     this.unregisterCommand();
     this.unloadStreamers();
     console.log("  |---------------------------------------------------");
-    console.log(`  |--- ${$t("a51.unload.line-1")}`);
+    console.log(`  |--- ${this.i18n?.$t("a51.unload.line-1")}`);
     console.log("  |---------------------------------------------------");
   }
   private removeBuilding(player: P) {
@@ -114,19 +124,23 @@ class Fs<P extends BasePlayer> {
     } = A51ObjectsFactory(charset));
 
     A51LandObject.create();
-    this.log("  |--  Area 51 (69) Land object created");
+    this.log(`  |--  ${this.i18n?.$t("a51.objects.created.land")}`);
 
     A51Fence.create();
-    this.log("  |--  Area 51 (69) Fence object created");
+    this.log(`  |--  ${this.i18n?.$t("a51.objects.created.fence")}`);
 
     A51Buildings.forEach((o) => o.create());
-    this.log("  |--  Area 51 (69) Building objects created");
+    this.log(`  |--  ${this.i18n?.$t("a51.objects.created.building")}`);
 
     (gateInfo.north.instance = nInstance).create();
     (gateInfo.east.instance = eInstance).create();
-    this.log("  |--  Area 51 (69) Gate objects created");
+    this.log(`  |--  ${this.i18n?.$t("a51.objects.created.gate")}`);
 
-    this.textLabelEvent = new My3dTextLabelEvent(this.options, false);
+    this.textLabelEvent = new My3dTextLabelEvent(
+      this.options,
+      false,
+      this.i18n
+    );
 
     playerEvent.getPlayersArr().forEach((p) => {
       if (!p.isConnected() || p.isNpc()) return;
@@ -139,40 +153,44 @@ class Fs<P extends BasePlayer> {
     this.objectEvent = null;
     if (this.destroyValidObject(A51LandObject)) {
       this.log("  |---------------------------------------------------");
-      this.log("  |--  Area 51 (69) Land object destroyed");
+      this.log(`  |--  ${this.i18n?.$t("a51.objects.destroyed.land")}`);
     }
 
     if (this.destroyValidObject(A51Fence)) {
-      this.log("  |--  Area 51 (69) Fence object destroyed");
+      this.log(`  |--  ${this.i18n?.$t("a51.objects.destroyed.fence")}`);
     }
 
     if (this.destroyValidObject(gateInfo.north.instance)) {
-      this.log("  |--  Area 51 (69) Northern Gate object destroyed");
+      this.log(
+        `  |--  ${this.i18n?.$t("a51.objects.destroyed.gate.northern")}`
+      );
     }
 
     if (this.destroyValidObject(gateInfo.east.instance)) {
-      this.log("  |--  Area 51 (69) Eastern Gate object destroyed");
+      this.log(`  |--  ${this.i18n?.$t("a51.objects.destroyed.gate.eastern")}`);
     }
 
     A51Buildings?.forEach((o, i) => {
       if (this.destroyValidObject(o)) {
-        this.log(`  |--  Area 51 (69) Building object ${i + 1} destroyed`);
+        this.log(
+          `  |--  ${this.i18n?.$t("a51.objects.destroyed.building", [i + 1])}`
+        );
       }
     });
 
     this.labelGates.forEach((t) => t.isValid() && t.destroy());
-    this.log("  |--  Deleted the 3D Text Labels on the Area 51 (69) Gates");
+    this.log(`  |--  ${this.i18n?.$t("a51.labels.destroyed")}`);
   }
   private registerEvent(playerEvent: BasePlayerEvent<P>, charset: string) {
     const c_fn = (playerid: unknown) => {
       const p = playerEvent.findPlayerById(playerid as number);
       if (p) {
         this.removeBuilding(p);
-        this.labelGates = A51TextLabels(gateInfo, charset, p);
+        this.labelGates = A51TextLabels(gateInfo, charset, p, this.i18n);
         this.labelGates.forEach((t) => {
           t.create()?.toggleCallbacks();
         });
-        this.log("  |--  Area 51 (69) Gates 3D Text Labels created for player");
+        this.log(`  |--  ${this.i18n?.$t("a51.labels.created")}`);
       }
       return 1;
     };
@@ -196,7 +214,12 @@ class Fs<P extends BasePlayer> {
       p.setFacingAngle(180);
       p.setCameraBehind();
       if (onTeleport) onTeleport(p);
-      else new BaseGameText("~b~~h~Area 51 (69) Base!", 3000, 3).forPlayer(p);
+      else
+        new BaseGameText(
+          `~b~~h~${this.i18n?.$t("a51.text.teleport", null, p.locale)}`,
+          3000,
+          3
+        ).forPlayer(p);
       return 1;
     });
   }
@@ -219,14 +242,17 @@ class Fs<P extends BasePlayer> {
     if (!direction) return;
 
     const {
-      name,
       status,
       labelPos: position,
       openPos,
       closePos,
     } = gateInfo[direction];
 
-    const doorLowName = name.toLowerCase();
+    const doorLowName = this.i18n?.$t(
+      "a51.objects.gate.status.waiting.open",
+      null,
+      player.locale
+    );
 
     const { onGateMoving } = this.options;
 
@@ -237,7 +263,11 @@ class Fs<P extends BasePlayer> {
       }
       player.sendClientMessage(
         ColorEnum.MESSAGE_YELLOW,
-        `* Sorry, you must wait for the ${doorLowName} to fully open first.`
+        this.i18n?.$t(
+          "a51.objects.gate.status.waiting.open",
+          [doorLowName],
+          player.locale
+        ) || ""
       );
       return;
     }
@@ -249,7 +279,11 @@ class Fs<P extends BasePlayer> {
       }
       player.sendClientMessage(
         ColorEnum.MESSAGE_YELLOW,
-        `* Sorry, you must wait for the ${doorLowName} to fully close first.`
+        this.i18n?.$t(
+          "a51.objects.gate.status.waiting.close",
+          [doorLowName],
+          player.locale
+        ) || ""
       );
       return;
     }
@@ -288,7 +322,15 @@ class Fs<P extends BasePlayer> {
       if (onGateOpen) {
         openRes = onGateOpen(player, direction);
       } else {
-        const gt = new BaseGameText(`~b~~h~${doorLowName} Opening!`, 3000, 3);
+        const gt = new BaseGameText(
+          this.i18n?.$t(
+            "a51.objects.gate.status.opening",
+            [doorLowName],
+            player.locale
+          ) || "",
+          3000,
+          3
+        );
         gt.forPlayer(player);
       }
       if (onGateOpen && !openRes) return;
@@ -300,7 +342,15 @@ class Fs<P extends BasePlayer> {
     if (onGateClose) {
       closeRes = onGateClose(player, direction);
     } else {
-      const gt = new BaseGameText(`~b~~h~${doorLowName} Closing!`, 3000, 3);
+      const gt = new BaseGameText(
+        this.i18n?.$t(
+          "a51.objects.gate.status.closing",
+          [doorLowName],
+          player.locale
+        ) || "",
+        3000,
+        3
+      );
       gt.forPlayer(player);
     }
     if (onGateClose && !closeRes) return;

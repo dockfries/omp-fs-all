@@ -10,7 +10,6 @@ import {
 
 export const gateInfo: IGateList = {
   east: {
-    name: "Eastern Gate",
     status: GateStatusEnum.CLOSED,
     labelPos: {
       x: 287.12,
@@ -38,7 +37,6 @@ export const gateInfo: IGateList = {
     },
   },
   north: {
-    name: "Northern Gate",
     status: GateStatusEnum.CLOSED,
     labelPos: {
       x: 135.09,

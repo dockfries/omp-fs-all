@@ -27,6 +27,7 @@ export interface A51FilterScript extends IFilterScript {
 
 export interface IA51Options<P extends BasePlayer> {
   locales?: TLocales;
+  defaultLocale: "en_us";
   playerEvent: BasePlayerEvent<P>;
   command?: string | Array<string>;
   debug?: boolean;
@@ -43,7 +44,6 @@ export interface IA51Options<P extends BasePlayer> {
 }
 
 export interface IGateInfo {
-  name: string;
   status: GateStatusEnum;
   labelPos: IPosition;
   openPos: IMovePosition;

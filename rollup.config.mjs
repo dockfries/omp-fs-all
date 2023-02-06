@@ -3,6 +3,7 @@ import { typescriptPaths } from "rollup-plugin-typescript-paths";
 import del from "rollup-plugin-delete";
 import externals from "rollup-plugin-node-externals";
 import dts from "rollup-plugin-dts";
+import json from "@rollup/plugin-json";
 
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
@@ -19,6 +20,7 @@ export default [
       esbuild({ minify: true }),
       typescriptPaths({ preserveExtensions: true }),
       externals(),
+      json(),
     ],
   },
   {
