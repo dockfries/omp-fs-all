@@ -69,7 +69,7 @@ export const gateInfo: IGateList = {
   },
 };
 
-export class MyDynamicObjectEvent extends DynamicObjectEvent<
+class MyDynamicObjectEvent extends DynamicObjectEvent<
   BasePlayer,
   DynamicObject
 > {
@@ -326,7 +326,7 @@ export const moveGate = (
   return;
 };
 
-export const whichDoor = (player: A51Player): "east" | "north" | void => {
+const whichDoor = (player: A51Player): "east" | "north" | void => {
   const { x: ex, y: ey, z: ez } = gateInfo.east.labelPos;
   const { x: nx, y: ny, z: nz } = gateInfo.north.labelPos;
   if (player.isInRangeOfPoint(10.0, ex, ey, ez)) return "east";

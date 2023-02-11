@@ -19,56 +19,37 @@
 
 import { IA51Options } from "@/interfaces";
 
-import {
-  BaseGameText,
-  Dynamic3DTextLabel,
-  I18n,
-  IFilterScript,
-} from "omp-node-lib";
+import { BaseGameText, I18n, IFilterScript } from "omp-node-lib";
 
-import { A51TextLabels, My3dTextLabelEvent } from "./label";
-import {
-  gateInfo,
-  loadObjects,
-  moveGate,
-  removeBuilding,
-  unloadObjects,
-} from "./object";
+import { loadLabels, registerLabelEvent, unloadLabels } from "./label";
+import { loadObjects, moveGate, removeBuilding, unloadObjects } from "./object";
 
 import zh_cn from "./locales/zh-CN.json";
 import en_us from "./locales/en-US.json";
 import { playerEvent } from "./player";
-import { log } from "@/utils/gl_common";
 
 export const useA51BaseFS = (options: IA51Options): IFilterScript => {
-  let labelGates: Array<Dynamic3DTextLabel> = [];
-  const { locales, defaultLocale } = options;
+  const { locales, defaultLocale, onCommandReceived } = options;
   const i18n = new I18n(defaultLocale, { zh_cn, en_us });
   if (locales) i18n.addLocales(locales);
-
-  const loadStreamers = () => {
-    loadObjects(options, i18n);
-    new My3dTextLabelEvent(false, i18n);
-    log(options, "  |---------------------------------------------------");
-  };
-
-  const unloadStreamers = () => {
-    unloadObjects(options, i18n);
-    labelGates.forEach((t) => t.isValid() && t.destroy());
-    log(options, `  |--  ${i18n?.$t("a51.labels.destroyed")}`);
-  };
 
   const registerEvent = () => {
     playerEvent.onConnect = (p) => {
       removeBuilding(p);
-      labelGates = A51TextLabels(gateInfo, p, i18n);
-      labelGates.forEach((t) => t.create()?.toggleCallbacks());
-      log(options, `  |--  ${i18n?.$t("a51.labels.created")}`);
-      return 1;
+      loadLabels(p, options, i18n);
+      return true;
+    };
+    playerEvent.onDisconnect = (p) => {
+      unloadLabels(options, i18n, p);
+      return true;
     };
     playerEvent.onKeyStateChange = (p, newKeys) => {
       moveGate(playerEvent, p, newKeys, options, i18n);
-      return 1;
+      return true;
+    };
+    if (!onCommandReceived) return;
+    playerEvent.onCommandReceived = (p, command) => {
+      return onCommandReceived(p.id, command);
     };
   };
 
@@ -90,7 +71,7 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
           3000,
           3
         ).forPlayer(p);
-      return 1;
+      return true;
     });
   };
 
@@ -99,7 +80,7 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
     playerEvent.offCommandText(command);
   };
 
-  const devideLine = () => {
+  const separator = () => {
     console.log("  |---------------------------------------------------");
   };
 
@@ -107,24 +88,26 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
     name: "a51_base",
     load() {
       registerEvent();
-      loadStreamers();
+      loadObjects(options, i18n);
+      registerLabelEvent(options, i18n);
       registerCommand();
 
       console.log("\n");
-      devideLine();
+      separator();
       console.log(`  |--- ${i18n.$t("a51.load.line-1")}`);
       console.log(`  |--  ${i18n.$t("a51.load.line-2")}`);
       console.log(`  |--  ${i18n.$t("a51.load.line-3")}`);
-      devideLine();
+      separator();
     },
     unload() {
       unregisterEvent();
       unregisterCommand();
-      unloadStreamers();
+      unloadObjects(options, i18n);
+      unloadLabels(options, i18n);
 
-      devideLine();
+      separator();
       console.log(`  |--- ${i18n?.$t("a51.unload.line-1")}`);
-      devideLine();
+      separator();
     },
   };
 };

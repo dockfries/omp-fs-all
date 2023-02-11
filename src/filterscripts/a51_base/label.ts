@@ -1,14 +1,18 @@
 import { ColorEnum } from "@/filterscripts/a51_base/enums/color";
-import { IGateList } from "@/interfaces";
+import { IA51Options, IGateList } from "@/interfaces";
+import { log } from "@/utils/gl_common";
 import {
   BasePlayer,
   Dynamic3DTextLabel,
   Dynamic3dTextLabelEvent,
   I18n,
 } from "omp-node-lib";
+import { gateInfo } from "./object";
 import { A51Player, playerEvent } from "./player";
 
-export const A51TextLabels = (
+const labelGates: Map<A51Player, Array<Dynamic3DTextLabel>> = new Map();
+
+const A51TextLabels = (
   gate: IGateList,
   player: BasePlayer,
   i18n: I18n | null
@@ -63,3 +67,28 @@ export class My3dTextLabelEvent extends Dynamic3dTextLabelEvent<
     return 1;
   }
 }
+
+export const loadLabels = (p: A51Player, options: IA51Options, i18n: I18n) => {
+  labelGates.set(p, A51TextLabels(gateInfo, p, i18n));
+  labelGates.get(p)?.forEach((t) => t.create()?.toggleCallbacks());
+  log(options, `  |--  ${i18n?.$t("a51.labels.created")}`);
+};
+
+export const unloadLabels = (
+  options: IA51Options,
+  i18n: I18n,
+  p?: A51Player
+) => {
+  if (p) {
+    labelGates.get(p)?.forEach((t) => t.isValid() && t.destroy());
+    labelGates.delete(p);
+  } else {
+    labelGates.forEach((v) => v.forEach((t) => t.isValid() && t.destroy()));
+  }
+  log(options, `  |--  ${i18n?.$t("a51.labels.destroyed")}`);
+};
+
+export const registerLabelEvent = (options: IA51Options, i18n: I18n) => {
+  new My3dTextLabelEvent(false, i18n);
+  log(options, "  |---------------------------------------------------");
+};
