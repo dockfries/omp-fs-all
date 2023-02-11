@@ -1,3 +1,4 @@
+import { ICommonOptions } from "@/interfaces";
 import { BasePlayer, KeysEnum } from "omp-node-lib";
 
 export const IsKeyJustDown = (
@@ -33,4 +34,8 @@ export const PlaySoundForPlayersInRange = (
     if (p.isConnected() && p.isInRangeOfPoint(range, x, y, z))
       p.playSound(soundid, x, y, z);
   });
+};
+
+export const log = (options: ICommonOptions, msg: string) => {
+  if (options.debug) console.log(msg);
 };

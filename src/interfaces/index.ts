@@ -18,11 +18,11 @@ export interface IMovePosition extends IPosition {
 export interface ICommonOptions {
   locales?: TLocales;
   defaultLocale: "en_us";
+  debug?: boolean;
 }
 
 export interface IA51Options extends ICommonOptions {
   command?: string | Array<string>;
-  debug?: boolean;
   beforeMoveGate?: (player: A51Player) => boolean;
   onGateMoving?: (
     player: A51Player,
