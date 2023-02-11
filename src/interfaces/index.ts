@@ -17,7 +17,7 @@ export interface IMovePosition extends IPosition {
 
 export interface ICommonOptions {
   locales?: TLocales;
-  defaultLocale: "en_us";
+  defaultLocale?: string;
   debug?: boolean;
 }
 

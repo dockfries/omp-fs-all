@@ -28,23 +28,27 @@ import zh_cn from "./locales/zh-CN.json";
 import en_us from "./locales/en-US.json";
 import { playerEvent } from "./player";
 
-export const useA51BaseFS = (options: IA51Options): IFilterScript => {
-  const { locales, defaultLocale, onCommandReceived } = options;
+export const useA51BaseFS = (options?: IA51Options): IFilterScript => {
+  const _options = options || {};
+  _options.defaultLocale = _options.defaultLocale || "en_US";
+  _options.command = _options.command || "a51";
+
+  const { locales, defaultLocale, onCommandReceived } = _options;
   const i18n = new I18n(defaultLocale, { zh_cn, en_us });
   if (locales) i18n.addLocales(locales);
 
   const registerEvent = () => {
     playerEvent.onConnect = (p) => {
       removeBuilding(p);
-      loadLabels(p, options, i18n);
+      loadLabels(p, _options, i18n);
       return true;
     };
     playerEvent.onDisconnect = (p) => {
-      unloadLabels(options, i18n, p);
+      unloadLabels(_options, i18n, p);
       return true;
     };
     playerEvent.onKeyStateChange = (p, newKeys) => {
-      moveGate(playerEvent, p, newKeys, options, i18n);
+      moveGate(playerEvent, p, newKeys, _options, i18n);
       return true;
     };
     if (!onCommandReceived) return;
@@ -58,8 +62,8 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
   };
 
   const registerCommand = () => {
-    const { command = "a51", onTeleport } = options;
-    playerEvent.onCommandText(command, (p) => {
+    const { command, onTeleport } = _options;
+    playerEvent.onCommandText(command as string, (p) => {
       p.setInterior(0);
       p.setPos(135.2, 1948.51, 19.74);
       p.setFacingAngle(180);
@@ -76,8 +80,7 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
   };
 
   const unregisterCommand = () => {
-    const { command = "a51" } = options;
-    playerEvent.offCommandText(command);
+    playerEvent.offCommandText(_options.command as string);
   };
 
   const separator = () => {
@@ -88,8 +91,8 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
     name: "a51_base",
     load() {
       registerEvent();
-      loadObjects(options, i18n);
-      registerLabelEvent(options, i18n);
+      loadObjects(_options, i18n);
+      registerLabelEvent(_options, i18n);
       registerCommand();
 
       console.log("\n");
@@ -102,8 +105,8 @@ export const useA51BaseFS = (options: IA51Options): IFilterScript => {
     unload() {
       unregisterEvent();
       unregisterCommand();
-      unloadObjects(options, i18n);
-      unloadLabels(options, i18n);
+      unloadObjects(_options, i18n);
+      unloadLabels(_options, i18n);
 
       separator();
       console.log(`  |--- ${i18n?.$t("a51.unload.line-1")}`);
