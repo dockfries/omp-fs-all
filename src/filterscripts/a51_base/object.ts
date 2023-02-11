@@ -1,12 +1,6 @@
-import { GateStatusEnum } from "@/enums/gate";
+import { GateStatusEnum } from "@/filterscripts/a51_base/enums/gate";
 import { IGateList } from "@/interfaces";
-import {
-  BasePlayer,
-  DynamicObject,
-  DynamicObjectEvent,
-  EditResponseTypesEnum,
-  TCommonCallback,
-} from "omp-node-lib";
+import { BasePlayer, DynamicObject, DynamicObjectEvent } from "omp-node-lib";
 
 export const gateInfo: IGateList = {
   east: {
@@ -69,7 +63,7 @@ export class MyDynamicObjectEvent extends DynamicObjectEvent<
   BasePlayer,
   DynamicObject
 > {
-  protected onMoved(object: DynamicObject): TCommonCallback {
+  onMoved(object: DynamicObject) {
     const { north, east } = gateInfo;
     if (object === north.instance) {
       gateInfo.north.status =
@@ -87,58 +81,9 @@ export class MyDynamicObjectEvent extends DynamicObjectEvent<
     }
     return 1;
   }
-  //#region
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  protected onPlayerEdit(
-    player: BasePlayer,
-    object: DynamicObject,
-    response: EditResponseTypesEnum,
-    x: number,
-    y: number,
-    z: number,
-    rx: number,
-    ry: number,
-    rz: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onPlayerSelect(
-    player: BasePlayer,
-    object: DynamicObject,
-    modelid: number,
-    x: number,
-    y: number,
-    z: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onPlayerShoot(
-    player: BasePlayer,
-    weaponid: number,
-    object: DynamicObject,
-    x: number,
-    y: number,
-    z: number
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onStreamIn(
-    object: DynamicObject,
-    player: BasePlayer
-  ): TCommonCallback {
-    return 1;
-  }
-  protected onStreamOut(
-    object: DynamicObject,
-    player: BasePlayer
-  ): TCommonCallback {
-    return 1;
-  }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-  //#endregion
 }
 
-export const A51ObjectsFactory = (charset: string) => {
+export const A51ObjectsFactory = () => {
   const A51LandObject: DynamicObject = new DynamicObject({
     modelid: 11692,
     x: 199.344,
@@ -147,7 +92,6 @@ export const A51ObjectsFactory = (charset: string) => {
     rx: 0,
     ry: 0,
     rz: 0,
-    charset,
   });
   const A51Buildings: Array<DynamicObject> = [
     new DynamicObject({
@@ -158,7 +102,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 0,
-      charset,
     }),
     new DynamicObject({
       modelid: 19905,
@@ -168,7 +111,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 0,
-      charset,
     }),
     new DynamicObject({
       modelid: 19905,
@@ -178,7 +120,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 0,
-      charset,
     }),
     new DynamicObject({
       modelid: 19907,
@@ -188,7 +129,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 270.0,
-      charset,
     }),
     new DynamicObject({
       modelid: 19907,
@@ -198,7 +138,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 0,
-      charset,
     }),
     new DynamicObject({
       modelid: 19909,
@@ -208,7 +147,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 270.0,
-      charset,
     }),
     new DynamicObject({
       modelid: 19909,
@@ -218,7 +156,6 @@ export const A51ObjectsFactory = (charset: string) => {
       rx: 0,
       ry: 0,
       rz: 0,
-      charset,
     }),
   ];
   const A51Fence: DynamicObject = new DynamicObject({
@@ -229,7 +166,6 @@ export const A51ObjectsFactory = (charset: string) => {
     rx: 0,
     ry: 0,
     rz: 0,
-    charset,
   });
   const { closePos: nClosePos } = gateInfo.north;
   const A51NorthernGate: DynamicObject = new DynamicObject({
@@ -240,7 +176,6 @@ export const A51ObjectsFactory = (charset: string) => {
     rx: nClosePos.rx,
     ry: nClosePos.ry,
     rz: nClosePos.rz,
-    charset,
   });
   const { closePos: eClosePos } = gateInfo.east;
   const A51EasternGate: DynamicObject = new DynamicObject({
@@ -251,7 +186,6 @@ export const A51ObjectsFactory = (charset: string) => {
     rx: eClosePos.rx,
     ry: eClosePos.ry,
     rz: eClosePos.rz,
-    charset,
   });
   return {
     A51LandObject,

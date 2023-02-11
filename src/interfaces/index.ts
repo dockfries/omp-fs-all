@@ -1,12 +1,6 @@
-import { GateStatusEnum } from "@/enums/gate";
-import {
-  BaseGameMode,
-  BasePlayer,
-  BasePlayerEvent,
-  DynamicObject,
-  IFilterScript,
-  TLocales,
-} from "omp-node-lib";
+import { GateStatusEnum } from "@/filterscripts/a51_base/enums/gate";
+import { A51Player } from "@/filterscripts/a51_base/player";
+import { DynamicObject, TLocales } from "omp-node-lib";
 
 export interface IPosition {
   x: number;
@@ -21,26 +15,23 @@ export interface IMovePosition extends IPosition {
   rz: number;
 }
 
-export interface A51FilterScript extends IFilterScript {
-  load(gm: BaseGameMode, ...args: Array<unknown>): void;
-}
-
-export interface IA51Options<P extends BasePlayer> {
+export interface ICommonOptions {
   locales?: TLocales;
   defaultLocale: "en_us";
-  playerEvent: BasePlayerEvent<P>;
+}
+
+export interface IA51Options extends ICommonOptions {
   command?: string | Array<string>;
   debug?: boolean;
-  charset?: string;
-  beforeMoveGate?: (player: P) => boolean;
+  beforeMoveGate?: (player: A51Player) => boolean;
   onGateMoving?: (
-    player: P,
+    player: A51Player,
     direction: keyof IGateList,
     status: GateStatusEnum
   ) => boolean;
-  onGateOpen?: (player: P, direction: keyof IGateList) => boolean;
-  onGateClose?: (player: P, direction: keyof IGateList) => boolean;
-  onTeleport?: (player: P) => unknown;
+  onGateOpen?: (player: A51Player, direction: keyof IGateList) => boolean;
+  onGateClose?: (player: A51Player, direction: keyof IGateList) => boolean;
+  onTeleport?: (player: A51Player) => unknown;
 }
 
 export interface IGateInfo {
@@ -54,4 +45,8 @@ export interface IGateInfo {
 export interface IGateList {
   east: IGateInfo;
   north: IGateInfo;
+}
+
+export interface IAdminSpecOptions extends ICommonOptions {
+  command?: string | Array<string>;
 }

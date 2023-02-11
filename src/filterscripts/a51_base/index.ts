@@ -17,57 +17,46 @@
  * 2 3D Text Labels = 1 on each gate
  */
 
-import { ColorEnum } from "@/enums/color";
-import { GateStatusEnum } from "@/enums/gate";
-import { A51FilterScript, IA51Options } from "@/interfaces";
-import {
-  addCbListener,
-  removeCbListener,
-  registeredCbs,
-} from "@/utils/eventListener";
+import { ColorEnum } from "@/filterscripts/a51_base/enums/color";
+import { GateStatusEnum } from "@/filterscripts/a51_base/enums/gate";
+import { IA51Options } from "@/interfaces";
+
 import { PlaySoundForPlayersInRange } from "@/utils/gl_common";
 
 import {
   BaseGameText,
-  BasePlayer,
-  BasePlayerEvent,
   Dynamic3DTextLabel,
   DynamicObject,
   I18n,
+  IFilterScript,
   KeysEnum,
 } from "omp-node-lib";
+
 import { A51TextLabels, My3dTextLabelEvent } from "./label";
 import { A51ObjectsFactory, gateInfo, MyDynamicObjectEvent } from "./object";
 
 import zh_cn from "./locales/zh-CN.json";
 import en_us from "./locales/en-US.json";
+import { A51Player, A51PlayerEvent, playerEvent } from "./player";
 
 let A51LandObject: DynamicObject | null = null;
 let A51Fence: DynamicObject | null = null;
 let A51Buildings: Array<DynamicObject> | null = null;
 
-class Fs<P extends BasePlayer> {
+class Fs {
   private labelGates: Array<Dynamic3DTextLabel> = [];
-  private options: IA51Options<P>;
-  private objectEvent: MyDynamicObjectEvent | null = null;
-  private textLabelEvent: My3dTextLabelEvent<P> | null = null;
   private i18n: I18n | null = null;
-  constructor(options: IA51Options<P>) {
+  constructor(private options: IA51Options) {
     this.options = options;
     this.load();
   }
   private load() {
-    const {
-      charset = "utf8",
-      playerEvent,
-      locales,
-      defaultLocale,
-    } = this.options;
+    const { locales, defaultLocale } = this.options;
     this.i18n = new I18n(defaultLocale, { zh_cn, en_us });
     if (locales) this.i18n.addLocales(locales);
 
-    this.registerEvent(playerEvent, charset);
-    this.loadStreamers(playerEvent, charset);
+    this.registerEvent();
+    this.loadStreamers();
     this.registerCommand();
     console.log("\n");
     console.log("  |---------------------------------------------------");
@@ -84,7 +73,7 @@ class Fs<P extends BasePlayer> {
     console.log(`  |--- ${this.i18n?.$t("a51.unload.line-1")}`);
     console.log("  |---------------------------------------------------");
   }
-  private removeBuilding(player: P) {
+  private removeBuilding(player: A51Player) {
     player.removeBuilding(16203, 199.344, 1943.79, 18.2031, 250.0);
     player.removeBuilding(16590, 199.344, 1943.79, 18.2031, 250.0);
     player.removeBuilding(16323, 199.336, 1943.88, 18.2031, 250.0);
@@ -108,12 +97,9 @@ class Fs<P extends BasePlayer> {
     if (this.options?.debug === false) return;
     console.log(msg);
   }
-  private loadStreamers(playerEvent: BasePlayerEvent<P>, charset: string) {
+  private loadStreamers() {
     // event should before create
-    this.objectEvent = new MyDynamicObjectEvent(
-      playerEvent.getPlayersMap(),
-      false
-    );
+    new MyDynamicObjectEvent(playerEvent.getPlayersMap(), false);
     let nInstance, eInstance;
     ({
       A51LandObject,
@@ -121,7 +107,7 @@ class Fs<P extends BasePlayer> {
       A51Buildings,
       A51NorthernGate: nInstance,
       A51EasternGate: eInstance,
-    } = A51ObjectsFactory(charset));
+    } = A51ObjectsFactory());
 
     A51LandObject.create();
     this.log(`  |--  ${this.i18n?.$t("a51.objects.created.land")}`);
@@ -136,11 +122,7 @@ class Fs<P extends BasePlayer> {
     (gateInfo.east.instance = eInstance).create();
     this.log(`  |--  ${this.i18n?.$t("a51.objects.created.gate")}`);
 
-    this.textLabelEvent = new My3dTextLabelEvent(
-      this.options,
-      false,
-      this.i18n
-    );
+    new My3dTextLabelEvent(false, this.i18n);
 
     playerEvent.getPlayersArr().forEach((p) => {
       if (!p.isConnected() || p.isNpc()) return;
@@ -150,7 +132,6 @@ class Fs<P extends BasePlayer> {
     this.log("  |---------------------------------------------------");
   }
   private unloadStreamers() {
-    this.objectEvent = null;
     if (this.destroyValidObject(A51LandObject)) {
       this.log("  |---------------------------------------------------");
       this.log(`  |--  ${this.i18n?.$t("a51.objects.destroyed.land")}`);
@@ -181,33 +162,26 @@ class Fs<P extends BasePlayer> {
     this.labelGates.forEach((t) => t.isValid() && t.destroy());
     this.log(`  |--  ${this.i18n?.$t("a51.labels.destroyed")}`);
   }
-  private registerEvent(playerEvent: BasePlayerEvent<P>, charset: string) {
-    const c_fn = (playerid: unknown) => {
-      const p = playerEvent.findPlayerById(playerid as number);
-      if (p) {
-        this.removeBuilding(p);
-        this.labelGates = A51TextLabels(gateInfo, charset, p, this.i18n);
-        this.labelGates.forEach((t) => {
-          t.create()?.toggleCallbacks();
-        });
-        this.log(`  |--  ${this.i18n?.$t("a51.labels.created")}`);
-      }
+  private registerEvent() {
+    playerEvent.onConnect = (p) => {
+      this.removeBuilding(p);
+      this.labelGates = A51TextLabels(gateInfo, p, this.i18n);
+      this.labelGates.forEach((t) => {
+        t.create()?.toggleCallbacks();
+      });
+      this.log(`  |--  ${this.i18n?.$t("a51.labels.created")}`);
       return 1;
     };
-    addCbListener("OnPlayerConnect", c_fn);
-
-    const ksc_fn = (playerid: unknown, newkeys: unknown) => {
-      const p = playerEvent.findPlayerById(playerid as number);
-      if (p) this.moveGate(playerEvent, p, newkeys as KeysEnum);
+    playerEvent.onKeyStateChange = (p, newKeys) => {
+      this.moveGate(playerEvent, p, newKeys as KeysEnum);
       return 1;
     };
-    addCbListener("OnPlayerKeyStateChange", ksc_fn);
   }
   private unregisterEvent() {
-    registeredCbs.forEach((v) => removeCbListener(v[0], v[1]));
+    playerEvent.onConnect = playerEvent.onKeyStateChange = undefined;
   }
   private registerCommand() {
-    const { playerEvent, command = "a51", onTeleport } = this.options;
+    const { command = "a51", onTeleport } = this.options;
     playerEvent.onCommandText(command, (p) => {
       p.setInterior(0);
       p.setPos(135.2, 1948.51, 19.74);
@@ -224,12 +198,12 @@ class Fs<P extends BasePlayer> {
     });
   }
   private unregisterCommand() {
-    const { playerEvent, command = "a51" } = this.options;
+    const { command = "a51" } = this.options;
     playerEvent.offCommandText(command);
   }
   private moveGate(
-    playerEvent: BasePlayerEvent<P>,
-    player: P,
+    playerEvent: A51PlayerEvent,
+    player: A51Player,
     newkeys: KeysEnum
   ): void {
     if (!(newkeys & KeysEnum.YES)) return;
@@ -358,7 +332,7 @@ class Fs<P extends BasePlayer> {
     gateInfo[direction].status = GateStatusEnum.CLOSING;
     return;
   }
-  private whichDoor(player: P): "east" | "north" | void {
+  private whichDoor(player: A51Player): "east" | "north" | void {
     const { x: ex, y: ey, z: ez } = gateInfo.east.labelPos;
     const { x: nx, y: ny, z: nz } = gateInfo.north.labelPos;
     if (player.isInRangeOfPoint(10.0, ex, ey, ez)) return "east";
@@ -367,9 +341,9 @@ class Fs<P extends BasePlayer> {
   }
 }
 
-export const useA51BaseFS = <P extends BasePlayer>(options: IA51Options<P>) => {
-  let $fs: Fs<P> | null = null;
-  const use: A51FilterScript = {
+export const useA51BaseFS = (options: IA51Options): IFilterScript => {
+  let $fs: Fs | null = null;
+  return {
     name: "a51_base",
     load() {
       $fs = new Fs(options);
@@ -378,5 +352,4 @@ export const useA51BaseFS = <P extends BasePlayer>(options: IA51Options<P>) => {
       if ($fs) $fs.unload();
     },
   };
-  return use;
 };

@@ -1,22 +1,20 @@
-import { ColorEnum } from "@/enums/color";
-import { IA51Options, IGateList } from "@/interfaces";
+import { ColorEnum } from "@/filterscripts/a51_base/enums/color";
+import { IGateList } from "@/interfaces";
 import {
   BasePlayer,
   Dynamic3DTextLabel,
   Dynamic3dTextLabelEvent,
   I18n,
-  TCommonCallback,
 } from "omp-node-lib";
+import { A51Player, playerEvent } from "./player";
 
 export const A51TextLabels = (
   gate: IGateList,
-  charset: string,
   player: BasePlayer,
   i18n: I18n | null
 ) => {
   return [
     new Dynamic3DTextLabel({
-      charset,
       text:
         i18n?.$t(
           "a51.labels.tips",
@@ -32,7 +30,6 @@ export const A51TextLabels = (
       playerid: player.id,
     }),
     new Dynamic3DTextLabel({
-      charset,
       text:
         i18n?.$t(
           "a51.labels.tips",
@@ -50,28 +47,19 @@ export const A51TextLabels = (
   ];
 };
 
-export class My3dTextLabelEvent<
-  P extends BasePlayer
-> extends Dynamic3dTextLabelEvent<P, Dynamic3DTextLabel> {
-  private i18n: I18n | null = null;
-  constructor(
-    options: IA51Options<P>,
-    destroyOnExit: boolean,
-    i18n: I18n | null
-  ) {
-    super(options.playerEvent.getPlayersMap(), destroyOnExit);
-    this.i18n = i18n;
+export class My3dTextLabelEvent extends Dynamic3dTextLabelEvent<
+  A51Player,
+  Dynamic3DTextLabel
+> {
+  constructor(destroyOnExit: boolean, private i18n: I18n | null) {
+    super(playerEvent.getPlayersMap(), destroyOnExit);
   }
-  protected onStreamIn(label: Dynamic3DTextLabel, player: P): TCommonCallback {
+  onStreamIn(label: Dynamic3DTextLabel, player: A51Player) {
     label.updateText(
       label.getColour() || "#fff",
       this.i18n?.$t("a51.labels.tips", null, player.locale) || "",
       player.charset
     );
-    return 1;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected onStreamOut(label: Dynamic3DTextLabel, player: P): TCommonCallback {
     return 1;
   }
 }
