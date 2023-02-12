@@ -27,11 +27,13 @@ import { loadObjects, moveGate, removeBuilding, unloadObjects } from "./object";
 import zh_cn from "./locales/zh-CN.json";
 import en_us from "./locales/en-US.json";
 import { playerEvent } from "./player";
+import { setPlayerEventParent } from "@/utils/gl_common";
 
 export const useA51BaseFS = (options?: IA51Options): IFilterScript => {
   const _options = options || {};
   _options.defaultLocale = _options.defaultLocale || "en_US";
   _options.command = _options.command || "a51";
+  setPlayerEventParent(options?.playerEvent, playerEvent);
 
   const { locales, defaultLocale, onCommandReceived } = _options;
   const i18n = new I18n(defaultLocale, { zh_cn, en_us });

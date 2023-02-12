@@ -6,8 +6,8 @@ export const IsKeyJustDown = (
   newkeys: KeysEnum,
   oldkeys: KeysEnum
 ) => {
-  if (newkeys & key && !(oldkeys & key)) return 1;
-  return 0;
+  if (newkeys & key && !(oldkeys & key)) return true;
+  return false;
 };
 
 export const PlaySoundForAll = (
@@ -38,4 +38,27 @@ export const PlaySoundForPlayersInRange = (
 
 export const log = (options: ICommonOptions, msg: string) => {
   if (options.debug) console.log(msg);
+};
+
+export const recursePlayerEvent = (
+  curr: object | null,
+  prev: object | null = curr
+): object | null => {
+  if (curr === null) return prev;
+  return recursePlayerEvent(Reflect.getPrototypeOf(curr), curr);
+};
+
+/**
+ * If a player event class is passed in from the outside,
+ * the event class inside fs will act as its parent to resolve the command nonexistence problem
+ */
+export const setPlayerEventParent = (
+  childPlayerEvent: object | undefined,
+  parentPlayerEvent: object
+) => {
+  if (!childPlayerEvent) return;
+  Reflect.setPrototypeOf(
+    recursePlayerEvent(childPlayerEvent) || childPlayerEvent,
+    parentPlayerEvent
+  );
 };

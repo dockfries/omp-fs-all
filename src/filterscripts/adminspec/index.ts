@@ -24,8 +24,8 @@ class AdminSpecPlayer extends BasePlayer {
 class AdminSpecPlayerEvent extends BasePlayerEvent<AdminSpecPlayer> {
   // WE ONLY DEAL WITH COMMANDS FROM ADMINS IN THIS FILTERSCRIPT
   onCommandPerformed(player: AdminSpecPlayer) {
-    if (!player.isAdmin()) return 0;
-    return 1;
+    if (!player.isAdmin()) return false;
+    return true;
   }
 
   // IF ANYONE IS SPECTATING THIS PLAYER, WE'LL ALSO HAVE
@@ -42,7 +42,7 @@ class AdminSpecPlayerEvent extends BasePlayerEvent<AdminSpecPlayer> {
         p.setInterior(newinteriorid);
       }
     });
-    return 1;
+    return true;
   }
 }
 
@@ -51,7 +51,7 @@ class AdminSpecVehicleEvent extends BaseVehicleEvent<
   BaseVehicle
 > {}
 
-export const useAdminSpecFs = (options: IAdminSpecOptions): IFilterScript => {
+export const useAdminSpecFs = (options?: IAdminSpecOptions): IFilterScript => {
   return {
     name: "admin_spec",
     load() {
@@ -66,7 +66,7 @@ export const useAdminSpecFs = (options: IAdminSpecOptions): IFilterScript => {
       playerEvent.onCommandText("specplayer", (p, specId) => {
         if (!specId) {
           p.sendClientMessage(ColorEnum.WHITE, "USAGE: /specplayer [playerid]");
-          return 1;
+          return true;
         }
 
         const specPlayer = playerEvent.findPlayerById(+specId);
@@ -75,7 +75,7 @@ export const useAdminSpecFs = (options: IAdminSpecOptions): IFilterScript => {
             ColorEnum.RED,
             "specplayer: that player isn't active."
           );
-          return 1;
+          return true;
         }
 
         p.toggleSpectating(true);
@@ -83,7 +83,7 @@ export const useAdminSpecFs = (options: IAdminSpecOptions): IFilterScript => {
         p.setInterior(specPlayer.getInterior());
         p.gSpectateID = specPlayer.id;
         p.gSpectateType = ADMIN_SPEC_TYPE.PLAYER;
-        return 1;
+        return true;
       });
 
       // SPECTATE A VEHICLE
@@ -93,18 +93,18 @@ export const useAdminSpecFs = (options: IAdminSpecOptions): IFilterScript => {
             ColorEnum.WHITE,
             "USAGE: /specvehicle [vehicleid]"
           );
-          return 1;
+          return true;
         }
 
         const specVehicle = vehicleEvent.findVehicleById(+vehId);
-        if (!specVehicle) return 1;
+        if (!specVehicle) return true;
 
         p.toggleSpectating(true);
         p.spectateVehicle(specVehicle);
         p.gSpectateID = specVehicle.id;
         p.gSpectateType = ADMIN_SPEC_TYPE.VEHICLE;
 
-        return 1;
+        return true;
       });
 
       // STOP SPECTATING
@@ -112,7 +112,7 @@ export const useAdminSpecFs = (options: IAdminSpecOptions): IFilterScript => {
         p.toggleSpectating(false);
         p.gSpectateID = InvalidEnum.PLAYER_ID;
         p.gSpectateType = ADMIN_SPEC_TYPE.NONE;
-        return 1;
+        return true;
       });
     },
     unload() {

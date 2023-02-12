@@ -80,16 +80,16 @@ class MyDynamicObjectEvent extends DynamicObjectEvent<
         north.status === GateStatusEnum.CLOSING
           ? GateStatusEnum.CLOSED
           : GateStatusEnum.OPEN;
-      return 1;
+      return true;
     }
     if (object === east.instance) {
       gateInfo.east.status =
         east.status === GateStatusEnum.CLOSING
           ? GateStatusEnum.CLOSED
           : GateStatusEnum.OPEN;
-      return 1;
+      return true;
     }
-    return 1;
+    return true;
   }
 }
 
@@ -210,16 +210,17 @@ export const moveGate = (
     const res = beforeMoveGate(player);
     if (!res) return;
   }
-  const direction = whichDoor(player);
-  if (!direction) return;
+  const door = whichPlayerDoor(player, i18n);
+  if (!door) return;
 
-  const { status, labelPos: position, openPos, closePos } = gateInfo[direction];
-
-  const doorLowName = i18n?.$t(
-    "a51.objects.gate.status.waiting.open",
-    null,
-    player.locale
-  );
+  const {
+    name,
+    direction,
+    status,
+    labelPos: position,
+    openPos,
+    closePos,
+  } = door;
 
   const { onGateMoving } = options;
 
@@ -230,11 +231,8 @@ export const moveGate = (
     }
     player.sendClientMessage(
       ColorEnum.MESSAGE_YELLOW,
-      i18n?.$t(
-        "a51.objects.gate.status.waiting.open",
-        [doorLowName],
-        player.locale
-      ) || ""
+      i18n?.$t("a51.objects.gate.status.waiting.open", [name], player.locale) ||
+        ""
     );
     return;
   }
@@ -248,7 +246,7 @@ export const moveGate = (
       ColorEnum.MESSAGE_YELLOW,
       i18n?.$t(
         "a51.objects.gate.status.waiting.close",
-        [doorLowName],
+        [name],
         player.locale
       ) || ""
     );
@@ -290,11 +288,8 @@ export const moveGate = (
       openRes = onGateOpen(player, direction);
     } else {
       const gt = new BaseGameText(
-        i18n?.$t(
-          "a51.objects.gate.status.opening",
-          [doorLowName],
-          player.locale
-        ) || "",
+        i18n?.$t("a51.objects.gate.status.opening", [name], player.locale) ||
+          "",
         3000,
         3
       );
@@ -310,11 +305,7 @@ export const moveGate = (
     closeRes = onGateClose(player, direction);
   } else {
     const gt = new BaseGameText(
-      i18n?.$t(
-        "a51.objects.gate.status.closing",
-        [doorLowName],
-        player.locale
-      ) || "",
+      i18n?.$t("a51.objects.gate.status.closing", [name], player.locale) || "",
       3000,
       3
     );
@@ -326,12 +317,25 @@ export const moveGate = (
   return;
 };
 
-const whichDoor = (player: A51Player): "east" | "north" | void => {
+const whichPlayerDoor = (player: A51Player, i18n: I18n) => {
   const { x: ex, y: ey, z: ez } = gateInfo.east.labelPos;
   const { x: nx, y: ny, z: nz } = gateInfo.north.labelPos;
-  if (player.isInRangeOfPoint(10.0, ex, ey, ez)) return "east";
-  if (player.isInRangeOfPoint(10.0, nx, ny, nz)) return "north";
-  return;
+  let direction: keyof IGateList | null = null;
+  if (player.isInRangeOfPoint(10.0, ex, ey, ez)) direction = "east";
+  else if (player.isInRangeOfPoint(10.0, nx, ny, nz)) direction = "north";
+  if (!direction) return;
+  const name = i18n?.$t(
+    direction === "east"
+      ? "a51.objects.gate.name.eastern"
+      : "a51.objects.gate.name.northern",
+    null,
+    player.locale
+  );
+  return {
+    name,
+    direction,
+    ...gateInfo[direction],
+  };
 };
 
 export const removeBuilding = (player: A51Player) => {
@@ -356,8 +360,12 @@ export const loadObjects = (options: ICommonOptions, i18n: I18n) => {
   A51Buildings.forEach((o) => o.create());
   log(options, `  |--  ${i18n?.$t("a51.objects.created.building")}`);
 
+  gateInfo["east"].instance = A51EasternGate;
+  gateInfo["north"].instance = A51NorthernGate;
+
   A51NorthernGate.create();
   A51EasternGate.create();
+
   log(options, `  |--  ${i18n?.$t("a51.objects.created.gate")}`);
 
   playerEvent.getPlayersArr().forEach((p) => {
