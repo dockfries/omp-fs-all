@@ -27,15 +27,14 @@ import { loadObjects, moveGate, removeBuilding, unloadObjects } from "./object";
 import zh_cn from "./locales/zh-CN.json";
 import en_us from "./locales/en-US.json";
 import { playerEvent } from "./player";
-import { setPlayerEventParent } from "@/utils/gl_common";
 
 export const useA51BaseFS = (options?: IA51Options): IFilterScript => {
+  let unregisterCommand: ReturnType<typeof playerEvent.onCommandText>;
   const _options = options || {};
   _options.defaultLocale = _options.defaultLocale || "en_US";
   _options.command = _options.command || "a51";
-  setPlayerEventParent(options?.playerEvent, playerEvent);
 
-  const { locales, defaultLocale, onCommandReceived } = _options;
+  const { locales, defaultLocale } = _options;
   const i18n = new I18n(defaultLocale, { zh_cn, en_us });
   if (locales) i18n.addLocales(locales);
 
@@ -53,19 +52,20 @@ export const useA51BaseFS = (options?: IA51Options): IFilterScript => {
       moveGate(playerEvent, p, newKeys, _options, i18n);
       return true;
     };
-    if (!onCommandReceived) return;
-    playerEvent.onCommandReceived = (p, command) => {
-      return onCommandReceived(p.id, command);
-    };
+    if (_options.onCommandReceived) {
+      playerEvent.onCommandReceived = _options.onCommandReceived;
+    }
   };
 
   const unregisterEvent = () => {
-    playerEvent.onConnect = playerEvent.onKeyStateChange = undefined;
+    playerEvent.onConnect = undefined;
+    playerEvent.onKeyStateChange = undefined;
+    playerEvent.onCommandReceived = undefined;
   };
 
   const registerCommand = () => {
     const { command, onTeleport } = _options;
-    playerEvent.onCommandText(command as string, (p) => {
+    unregisterCommand = playerEvent.onCommandText(command as string, (p) => {
       p.setInterior(0);
       p.setPos(135.2, 1948.51, 19.74);
       p.setFacingAngle(180);
@@ -79,10 +79,6 @@ export const useA51BaseFS = (options?: IA51Options): IFilterScript => {
         ).forPlayer(p);
       return true;
     });
-  };
-
-  const unregisterCommand = () => {
-    playerEvent.offCommandText(_options.command as string);
   };
 
   const separator = () => {

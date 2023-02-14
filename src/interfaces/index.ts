@@ -1,12 +1,6 @@
 import { GateStatusEnum } from "@/filterscripts/a51_base/enums/gate";
 import { A51Player } from "@/filterscripts/a51_base/player";
-import {
-  BasePlayer,
-  BasePlayerEvent,
-  DynamicObject,
-  TCommonCallback,
-  TLocales,
-} from "omp-node-lib";
+import { DynamicObject, TCommonCallback, TLocales } from "omp-node-lib";
 
 export interface IPosition {
   x: number;
@@ -28,9 +22,8 @@ export interface ICommonOptions {
 }
 
 export interface IA51Options extends ICommonOptions {
-  playerEvent?: BasePlayerEvent<BasePlayer>;
   command?: string | Array<string>;
-  onCommandReceived?: (id: number, command: string) => TCommonCallback;
+  onCommandReceived?: (id: A51Player, command: string) => TCommonCallback;
   beforeMoveGate?: (player: A51Player) => boolean;
   onGateMoving?: (
     player: A51Player,
